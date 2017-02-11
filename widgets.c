@@ -6,6 +6,11 @@
 #include "widgets.h"
 #include "iterator.h"
 
+void print_header() {
+  printw("Song Title\n");
+  printw("stopped\n");
+}
+
 void* list_choice_widget(BidirectionalIterator* iter, char* (repr)(void*)) {
   char finished = FALSE;
   int x, y;
