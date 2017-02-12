@@ -5,6 +5,8 @@
 
 #include "widgets.h"
 #include "pattern_screen.h"
+#include "audio_event.h"
+#include "audio_output.h"
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
 #define max(a, b) ((a) > (b) ? (a) : (b))
@@ -68,6 +70,16 @@ int char_to_piano(int ch) {
   return -1;
 }
 
+int note_to_freq(uint8_t note) {
+  static int freqs[] = {
+    262, 277, 294, 311, 330, 349,
+    370, 392, 415, 440, 466, 494
+  };
+  int oct = note / 16;
+  int sound = note % 16;
+  return freqs[sound];
+}
+
 char note_column_commands(PatternScreen* screen, int ch) {
   int pianoKey;
   if (ch == '.') {
@@ -75,9 +87,11 @@ char note_column_commands(PatternScreen* screen, int ch) {
     return TRUE;
   }
   else if ((pianoKey = char_to_piano(ch)) != -1) {
-    screen->pattern->steps[screen->row].n = 64 + pianoKey;
+    uint8_t note = 64 + pianoKey;
+    screen->pattern->steps[screen->row].n = note;
     if (screen->pattern->steps[screen->row].inst == NULL)
       screen->pattern->steps[screen->row].inst = screen->lastInstrument;
+    audio_add_event_freq(note_to_freq(note));
     return TRUE;
   }
   else {

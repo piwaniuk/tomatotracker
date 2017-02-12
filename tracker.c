@@ -4,8 +4,8 @@
 
 #include "instrument.h"
 #include "pattern.h"
-#include "widgets.h"
 #include "pattern_screen.h"
+#include "audio_output.h"
 
 Instrument INSTRUMENT_1 = {
   "instr1",
@@ -37,6 +37,7 @@ void initialize_instruments() {
 
 int main() {
   initialize_instruments();
+  audio_output_initialize();
 
   initscr();
   if (getenv("ESCDELAY") == NULL) set_escdelay(25);
@@ -48,5 +49,6 @@ int main() {
   pattern_screen(&screen);
   
   endwin();
+  audio_output_finalize();
   return 0;
 }
