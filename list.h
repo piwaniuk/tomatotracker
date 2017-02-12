@@ -7,7 +7,7 @@ struct LinkedList;
 
 typedef struct LinkedList LinkedList;
 
-LinkedList* list_create();
+LinkedList* list_create(void);
 
 void list_destroy(LinkedList* list);
 

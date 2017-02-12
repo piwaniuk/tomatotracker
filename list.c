@@ -50,6 +50,7 @@ void list_insert(BidirectionalIterator* iter, void* value) {
   newEntry->next = entry->next;
   newEntry->prev = entry;
   newEntry->prev->next = newEntry;
+  if (newEntry->next)
   newEntry->next->prev = newEntry;
   // move forward
   iter->state = newEntry;
@@ -59,7 +60,8 @@ void* list_remove(BidirectionalIterator* iter) {
   ListEntry* entry = (ListEntry*)iter->state;
   ListEntry* oldEntry = entry->next;
   entry->next = entry->next->next;
-  entry->next->prev = entry;
+  if (entry->next)
+    entry->next->prev = entry;
   void* ret = oldEntry->value;
   free(oldEntry);
   return ret;
@@ -78,17 +80,18 @@ const IteratorInterface LIST_ITERATOR_INTERFACE = {
 BidirectionalIterator* list_iterator(LinkedList* list) {
   BidirectionalIterator* ret = malloc(sizeof(BidirectionalIterator));
   ret->interface = &LIST_ITERATOR_INTERFACE;
-  ret->state = &(list->head);
+  ret->state = list->head;
   return ret;
 }
 
-LinkedList* list_create() {
+LinkedList* list_create(void) {
   LinkedList* list = malloc(sizeof(LinkedList));
   ListEntry* guard = malloc(sizeof(ListEntry));
   guard->next = NULL;
   guard->prev = NULL;
   guard->value = NULL;
   list->head = guard;
+  return list;
 }
 
 void list_destroy(LinkedList* list) {
