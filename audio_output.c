@@ -7,16 +7,27 @@
 #include "list.h"
 #include "iterator.h"
 
-LinkedList* EVENT_LIST;
+AudioOutputContext* AOC;
 
 void audio_add_event(AudioEvent* event) {
-  BidirectionalIterator* iter = list_iterator(EVENT_LIST);
+  BidirectionalIterator* iter = list_iterator(AOC->events);
   iter_insert(iter, event);
   iter_destroy(iter);
 }
 
+AudioOutputContext* aoc_create(Sequencer* seq) {
+  AudioOutputContext* aoc = malloc(sizeof(AudioOutputContext));
+  aoc->events = list_create();
+  aoc->seq = seq;
+  return aoc;
+}
+
+void aoc_destroy(AudioOutputContext* aoc) {
+  
+}
+
 void audio_add_event_freq(int freq) {
-  audio_add_event(audio_event_create(freq));
+  audio_add_event(ae_freq_create(freq));
 }
 
 void mix_buffers(BidirectionalIterator* bi, size_t len, sample_t* out) {
@@ -43,40 +54,58 @@ void mix_buffers(BidirectionalIterator* bi, size_t len, sample_t* out) {
   }*/
 }
 
-void audio_callback(void* user_data, Uint8* s, int len) {
+void audio_callback(void* userData, Uint8* s, int len) {
   size_t sampleLen = len / sizeof(sample_t);
+  
+  // push forward the sequencer
+  AudioOutputContext* context = (AudioOutputContext*)userData;
+  
+  {
+    BidirectionalIterator* i = list_iterator(context->events);
+    seq_forward(context->seq, sampleLen, i);
+    iter_destroy(i);
+  }
+  
+  // prepare buffers 
   LinkedList* bufferList = list_create();
-  BidirectionalIterator* i = list_iterator(EVENT_LIST);
-  BidirectionalIterator* bi = list_iterator(bufferList);
   
   // process audio events
-  while (!iter_is_end(i)) {
-    AudioEvent* event = (AudioEvent*)iter_get(i);
-    sample_t* buffer = malloc(sizeof(sample_t) * sampleLen);
-    if (!audio_event_fill(event, (sample_t*)buffer, sampleLen)) {
-      // remove the event
-      iter_remove(i);
-      audio_event_destroy(event);
+  {
+    BidirectionalIterator* i = list_iterator(context->events);
+    BidirectionalIterator* bi = list_iterator(bufferList);
+    while (!iter_is_end(i)) {
+      AudioEvent* event = (AudioEvent*)iter_get(i);
+      sample_t* buffer = malloc(sizeof(sample_t) * sampleLen);
+      if (!ae_fill(event, (sample_t*)buffer, sampleLen)) {
+        // remove the event
+        iter_remove(i);
+        ae_destroy(event);
+      }
+      else
+        iter_next(i);
+      iter_insert(bi, buffer);
     }
-    else
-      iter_next(i);
-    iter_insert(bi, buffer);
+    iter_destroy(i);
+    iter_destroy(bi);
   }
-  iter_destroy(bi);
   
   // mix created buffers
-  bi = list_iterator(bufferList);
-  mix_buffers(bi, sampleLen, (sample_t*)s);
+  {
+    BidirectionalIterator* bi = list_iterator(bufferList);
+    mix_buffers(bi, sampleLen, (sample_t*)s);
+    iter_destroy(bi);
+  }
   list_destroy(bufferList);
 }
 
-static void init_audio(void) {
+static void init_audio(AudioOutputContext* context) {
   SDL_AudioSpec spec;
   spec.freq = 48000;
   spec.format = AUDIO_U16;
   spec.channels = 1;
-  spec.samples = 1600;
+  spec.samples = 1024;
   spec.callback = audio_callback;
+  spec.userdata = context;
   if ( SDL_OpenAudio(&spec, NULL) < 0 ) {
     fprintf(stderr, "Couldn't open audio: %s\n", SDL_GetError());
     exit(2);
@@ -84,17 +113,17 @@ static void init_audio(void) {
   SDL_PauseAudio(0);
 }
 
-void audio_output_initialize(void) {
- EVENT_LIST = list_create();
- if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+void audio_output_initialize(Sequencer* seq) {
+  AOC = aoc_create(seq);
+  if (SDL_Init(SDL_INIT_AUDIO) < 0) {
     #ifdef DEBUG
     exit(1);
     #endif
   }
-  init_audio();
+  init_audio(AOC);
 }
 
 void audio_output_finalize(void) {
   SDL_Quit();
-  list_destroy(EVENT_LIST);
+  aoc_destroy(AOC);
 }

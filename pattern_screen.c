@@ -7,6 +7,7 @@
 #include "pattern_screen.h"
 #include "audio_event.h"
 #include "audio_output.h"
+#include "sequencer.h"
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
 #define max(a, b) ((a) > (b) ? (a) : (b))
@@ -41,7 +42,10 @@ void render_pattern_screen(PatternScreen* screen) {
     char* instrument = "......";
     if (screen->pattern->steps[i].n)
       instrument = screen->pattern->steps[i].inst->identifier;
-    sprintf(line, "%.3d %s %s .... ....\n", i + 1, note, instrument);
+    char mark = ' ';
+    if (screen->seq->pattern == screen->pattern && screen->seq->tick == i)
+      mark = '>';
+    sprintf(line, "%.3d%c%s %s .... ....\n", i + 1, mark, note, instrument);
     printw(line);
   }
   for(int i = screen->pattern->length; i < 19; ++i)
@@ -68,16 +72,6 @@ int char_to_piano(int ch) {
     if (ch == PIANO_KEYS[i][0])
       return PIANO_KEYS[i][1];
   return -1;
-}
-
-int note_to_freq(uint8_t note) {
-  static int freqs[] = {
-    262, 277, 294, 311, 330, 349,
-    370, 392, 415, 440, 466, 494
-  };
-  int oct = note / 16;
-  int sound = note % 16;
-  return freqs[sound];
 }
 
 char note_column_commands(PatternScreen* screen, int ch) {
@@ -113,6 +107,9 @@ char general_commands(PatternScreen* screen, int ch) {
     case KEY_RIGHT:
       screen->col = min(MAX_PAT_COL, screen->col + 1);
       break;
+    case 'p':
+      //TODO: toggle play
+      break;
     case 'Q':
       screen->finished = TRUE;
       break;
@@ -135,6 +132,7 @@ void choose_instrument(PatternScreen* screen) {
 }
 void pattern_screen(PatternScreen* screen) {
   int ch;
+  seq_play_pattern(screen->seq, screen->pattern);
   while (!screen->finished) {
     char noCommand = TRUE;
     render_pattern_screen(screen);

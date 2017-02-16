@@ -6,6 +6,7 @@
 #include "pattern.h"
 #include "pattern_screen.h"
 #include "audio_output.h"
+#include "sequencer.h"
 
 Instrument INSTRUMENT_1 = {
   "instr1",
@@ -36,16 +37,18 @@ void initialize_instruments() {
 
 
 int main() {
+  Sequencer seq = {NULL, NULL, NULL, 120, 6000, PLAY_MODE_PATTERN, 0, 0};
   initialize_instruments();
-  audio_output_initialize();
+  audio_output_initialize(&seq);
 
   initscr();
   if (getenv("ESCDELAY") == NULL) set_escdelay(25);
-  timeout(50);
+  timeout(30);
   noecho();
   keypad(stdscr, TRUE);
   
-  PatternScreen screen = {FALSE, &PATTERN, 0, 0, &INSTRUMENT_1};
+  
+  PatternScreen screen = {FALSE, &PATTERN, 0, 0, &INSTRUMENT_1, &seq};
   pattern_screen(&screen);
   
   endwin();
