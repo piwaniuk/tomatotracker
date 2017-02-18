@@ -1,10 +1,15 @@
 #include "sequencer.h"
 #include "audio_event.h"
 #include "synth.h"
+#include "1osc.h"
 
 AudioEvent* step_to_event(PatternStep* step) {
+  Instrument* instr = step->inst;
   int freq = note_to_freq(step->n);
-  return ae_freq_create(freq);
+  if (instr->type == INSTRUMENT_1OSC)
+    return ae_1osc_create(freq, instr->parameters);
+  else
+    return ae_freq_create(freq);
 }
 
 static void seq_forward_ticks(Sequencer* seq, size_t hold, size_t ticks, BidirectionalIterator* events) {

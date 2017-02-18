@@ -8,16 +8,36 @@
 #include "audio_output.h"
 #include "sequencer.h"
 
+Parameters1Osc PARAMS_1 = {
+  0,
+  65535,
+  240,
+  240,
+  40000,
+  800,
+};
+
 Instrument INSTRUMENT_1 = {
   "instr1",
   "default instument",
-  0
+  INSTRUMENT_1OSC,
+  &PARAMS_1
+};
+
+Parameters1Osc PARAMS_2 = {
+  0,
+  65535,
+  720,
+  240,
+  52000,
+  240
 };
 
 Instrument INSTRUMENT_2 = {
   "instr2",
   "default instument",
-  0
+  INSTRUMENT_1OSC,
+  &PARAMS_2
 };
 
 Pattern PATTERN = {

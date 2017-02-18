@@ -3,16 +3,7 @@
 #include <stdlib.h>
 
 #include "audio_event.h"
-
-typedef struct {
-  char (*fill)(AudioEvent* event, sample_t* buffer, size_t len);
-  void (*destroy)(AudioEvent* event);
-} AudioEventInterface;
-
-struct AudioEvent {
-  const AudioEventInterface* interface;
-  void* state;
-};
+#include "audio_event_interface.h"
 
 char ae_fill(AudioEvent* event, sample_t* buffer, size_t len) {
   return event->interface->fill(event, buffer, len);
@@ -21,10 +12,6 @@ char ae_fill(AudioEvent* event, sample_t* buffer, size_t len) {
 void ae_destroy(AudioEvent* event) {
   event->interface->destroy(event);
   free(event);
-}
-
-void ae_state_destroy(AudioEvent* event) {
-  free(event->state);
 }
 
 typedef struct {

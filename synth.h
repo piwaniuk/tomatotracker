@@ -7,6 +7,7 @@ typedef uint16_t sample_t;
 #define SAMPLE_0 32768
 #define SAMPLE_MIN 0
 #define SAMPLE_MAX USHRT_MAX
+#define SAMPLE_RATE 48000;
 
 int note_to_freq(uint8_t note);
 
