@@ -7,27 +7,25 @@
 #include "list.h"
 #include "iterator.h"
 
-AudioOutputContext* AOC;
-
-void audio_add_event(AudioEvent* event) {
-  BidirectionalIterator* iter = list_iterator(AOC->events);
+void aoc_add_event(AudioOutputContext* aoc, AudioEvent* event) {
+  pthread_mutex_lock(&aoc->events_mutex);
+  BidirectionalIterator* iter = list_iterator(aoc->events);
   iter_insert(iter, event);
   iter_destroy(iter);
+  pthread_mutex_unlock(&aoc->events_mutex);
 }
 
 AudioOutputContext* aoc_create(Sequencer* seq) {
   AudioOutputContext* aoc = malloc(sizeof(AudioOutputContext));
   aoc->events = list_create();
   aoc->seq = seq;
+  pthread_mutex_init(&aoc->events_mutex, NULL);
   return aoc;
 }
 
 void aoc_destroy(AudioOutputContext* aoc) {
-  
-}
-
-void audio_add_event_freq(int freq) {
-  audio_add_event(ae_freq_create(freq));
+  pthread_mutex_destroy(&aoc->events_mutex);
+  free(aoc);
 }
 
 void mix_buffers(BidirectionalIterator* bi, size_t len, sample_t* out) {
@@ -58,11 +56,13 @@ void audio_callback(void* userData, Uint8* s, int len) {
   size_t sampleLen = len / sizeof(sample_t);
   
   // push forward the sequencer
-  AudioOutputContext* context = (AudioOutputContext*)userData;
+  AudioOutputContext* aoc = (AudioOutputContext*)userData;
   
   {
-    BidirectionalIterator* i = list_iterator(context->events);
-    seq_forward(context->seq, sampleLen, i);
+    pthread_mutex_lock(&aoc->events_mutex);
+    BidirectionalIterator* i = list_iterator(aoc->events);
+    seq_forward(aoc->seq, sampleLen, i);
+    pthread_mutex_unlock(&aoc->events_mutex);
     iter_destroy(i);
   }
   
@@ -71,7 +71,8 @@ void audio_callback(void* userData, Uint8* s, int len) {
   
   // process audio events
   {
-    BidirectionalIterator* i = list_iterator(context->events);
+    pthread_mutex_lock(&aoc->events_mutex);
+    BidirectionalIterator* i = list_iterator(aoc->events);
     BidirectionalIterator* bi = list_iterator(bufferList);
     while (!iter_is_end(i)) {
       AudioEvent* event = (AudioEvent*)iter_get(i);
@@ -86,7 +87,8 @@ void audio_callback(void* userData, Uint8* s, int len) {
       iter_insert(bi, buffer);
     }
     iter_destroy(i);
-    iter_destroy(bi);
+    iter_destroy(bi); 
+    pthread_mutex_unlock(&aoc->events_mutex);
   }
   
   // mix created buffers
@@ -113,17 +115,15 @@ static void init_audio(AudioOutputContext* context) {
   SDL_PauseAudio(0);
 }
 
-void audio_output_initialize(Sequencer* seq) {
-  AOC = aoc_create(seq);
+void audio_output_initialize(AudioOutputContext* aoc) {
   if (SDL_Init(SDL_INIT_AUDIO) < 0) {
     #ifdef DEBUG
     exit(1);
     #endif
   }
-  init_audio(AOC);
+  init_audio(aoc);
 }
 
 void audio_output_finalize(void) {
   SDL_Quit();
-  aoc_destroy(AOC);
 }

@@ -43,7 +43,7 @@ void render_pattern_screen(PatternScreen* screen) {
     if (screen->pattern->steps[i].n)
       instrument = screen->pattern->steps[i].inst->identifier;
     char mark = ' ';
-    if (screen->seq->pattern == screen->pattern && screen->seq->tick == i)
+    if (screen->pattern == screen->tracker->sequencer.pattern && screen->tracker->sequencer.tick == i)
       mark = '>';
     sprintf(line, "%.3d%c%s %s .... ....\n", i + 1, mark, note, instrument);
     printw(line);
@@ -85,7 +85,7 @@ char note_column_commands(PatternScreen* screen, int ch) {
     screen->pattern->steps[screen->row].n = note;
     if (screen->pattern->steps[screen->row].inst == NULL)
       screen->pattern->steps[screen->row].inst = screen->lastInstrument;
-    audio_add_event_freq(note_to_freq(note));
+    aoc_add_event(screen->tracker->aoc, step_to_event(&screen->pattern->steps[screen->row]));
     return TRUE;
   }
   else {
@@ -132,7 +132,7 @@ void choose_instrument(PatternScreen* screen) {
 }
 void pattern_screen(PatternScreen* screen) {
   int ch;
-  seq_play_pattern(screen->seq, screen->pattern);
+  seq_play_pattern(&screen->tracker->sequencer, screen->pattern);
   while (!screen->finished) {
     char noCommand = TRUE;
     render_pattern_screen(screen);

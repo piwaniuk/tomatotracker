@@ -3,7 +3,8 @@
 
 #include "pattern.h"
 #include "instrument.h"
-#include "sequencer.h"
+#include "audio_output.h"
+#include "tracker.h"
 
 typedef struct {
   char finished;
@@ -11,7 +12,7 @@ typedef struct {
   int row;
   int col;
   Instrument* lastInstrument;
-  Sequencer* seq;
+  Tracker* tracker;
 } PatternScreen;
 
 void pattern_screen(PatternScreen* screen);

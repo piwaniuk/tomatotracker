@@ -77,6 +77,7 @@ char ae_hold_fill(AudioEvent* event, sample_t* buffer, size_t len) {
     state->hold -= len;
     for(int i = 0; i < len; ++i)
       buffer[i] = SAMPLE_0;
+    return true;
   }
 }
 

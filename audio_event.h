@@ -1,7 +1,8 @@
 #ifndef AUDIO_EVENT_H
 #define AUDIO_EVENT_H
 
-#include "audio_output.h"
+#include <stdlib.h>
+
 #include "synth.h"
 
 struct AudioEvent;

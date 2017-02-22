@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "tracker.h"
 #include "instrument.h"
 #include "pattern.h"
 #include "pattern_screen.h"
@@ -55,12 +56,17 @@ void initialize_instruments() {
   iter_destroy(i);
 }
 
+void initialize_audio(Tracker* tracker) {
+  initialize_instruments();
+  tracker->sequencer = (Sequencer){NULL, NULL, NULL, 120, 6000, PLAY_MODE_PATTERN, 0, 0};
+  tracker->aoc = aoc_create(&tracker->sequencer);
+  audio_output_initialize(tracker->aoc);
+}
+
 
 int main() {
-  Sequencer seq = {NULL, NULL, NULL, 120, 6000, PLAY_MODE_PATTERN, 0, 0};
-  initialize_instruments();
-  audio_output_initialize(&seq);
-
+  Tracker tracker;
+  initialize_audio(&tracker);
   initscr();
   if (getenv("ESCDELAY") == NULL) set_escdelay(25);
   timeout(30);
@@ -68,7 +74,7 @@ int main() {
   keypad(stdscr, TRUE);
   
   
-  PatternScreen screen = {FALSE, &PATTERN, 0, 0, &INSTRUMENT_1, &seq};
+  PatternScreen screen = {FALSE, &PATTERN, 0, 0, &INSTRUMENT_1, &tracker};
   pattern_screen(&screen);
   
   endwin();

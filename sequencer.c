@@ -26,7 +26,7 @@ static void seq_forward_ticks(Sequencer* seq, size_t hold, size_t ticks, Bidirec
 
 void seq_forward(Sequencer* seq, size_t len, BidirectionalIterator* events) {
   size_t hold = seq->spt - seq->sample;
-  size_t ticks = (seq->sample + len) / seq->spt;
+  size_t ticks = (len + seq->sample) / seq->spt;
   seq_forward_ticks(seq, hold, ticks, events);
   seq->sample = (seq->sample + len) % seq->spt; 
 }

@@ -14,7 +14,7 @@ typedef struct {
 
 uint16_t gen_ads_envelope(Parameters1Osc* params, uint32_t t) {
   if (t < params->ampAtt)
-    return t * 65536 / params->ampAtt;
+    return 65535 * t / params->ampAtt;
   else if (t < params->ampAtt + params->ampDec)
     return 65535 - (65535 - params->ampSus) * (t - params->ampAtt) / params->ampDec;
   else
@@ -25,7 +25,7 @@ uint16_t gen_rel_envelope(Parameters1Osc* params, uint32_t t) {
   if (t < 3000)
     return 65535;
   else if (t < 3000 + params->ampRel)
-    return 65536 * (t - 3000) / params->ampRel;
+    return 65535 - 65535 * (t - 3000) / params->ampRel;
   else
     return 0;
 }
@@ -51,8 +51,6 @@ AudioEventInterface AE_1OSC_INTERFACE = {
 };
 
 AudioEvent* ae_1osc_create(int freq, void* parameters) {
-  Parameters1Osc* params1Osc = (Parameters1Osc*)parameters;
-  
   State1Osc* state = malloc(sizeof(State1Osc));
   state->params = (Parameters1Osc*)parameters;
   state->phase = 0;
@@ -61,5 +59,6 @@ AudioEvent* ae_1osc_create(int freq, void* parameters) {
   
   AudioEvent* event = malloc(sizeof(AudioEvent));
   event->interface = &AE_1OSC_INTERFACE;
+  event->state = state;
   return event;
 }
