@@ -5,7 +5,8 @@
 #include "tracker.h"
 #include "instrument.h"
 #include "pattern.h"
-#include "pattern_screen.h"
+//#include "pattern_screen.h"
+#include "song_screen.h"
 #include "audio_output.h"
 #include "sequencer.h"
 
@@ -74,10 +75,14 @@ int main() {
   keypad(stdscr, TRUE);
   
   
-  PatternScreen screen = {FALSE, &PATTERN, 0, 0, &INSTRUMENT_1, &tracker};
-  pattern_screen(&screen);
+  //PatternScreen screen = {FALSE, &PATTERN, 0, 0, &INSTRUMENT_1, &tracker};
+  Song* song = song_create(); // TODO: place it somewhere
+  SongScreen screen = {false, song, 0, 0, NULL, &tracker};
+  song_screen(&screen);
+  song_destroy(song);
   
   endwin();
   audio_output_finalize();
+  aoc_destroy(tracker.aoc);
   return 0;
 }
