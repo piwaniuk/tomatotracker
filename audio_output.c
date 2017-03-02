@@ -25,6 +25,7 @@ AudioOutputContext* aoc_create(Sequencer* seq) {
 
 void aoc_destroy(AudioOutputContext* aoc) {
   pthread_mutex_destroy(&aoc->events_mutex);
+  list_destroy(aoc->events);
   free(aoc);
 }
 
