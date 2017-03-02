@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 #include "sequencer.h"
 #include "audio_event.h"
 #include "synth.h"
@@ -25,13 +27,20 @@ static void seq_forward_ticks(Sequencer* seq, size_t hold, size_t ticks, Bidirec
 }
 
 void seq_forward(Sequencer* seq, size_t len, BidirectionalIterator* events) {
-  size_t hold = seq->spt - seq->sample;
-  size_t ticks = (len + seq->sample) / seq->spt;
-  seq_forward_ticks(seq, hold, ticks, events);
-  seq->sample = (seq->sample + len) % seq->spt; 
+  if (seq->isPlaying) {
+    size_t hold = seq->spt - seq->sample;
+    size_t ticks = (len + seq->sample) / seq->spt;
+    seq_forward_ticks(seq, hold, ticks, events);
+    seq->sample = (seq->sample + len) % seq->spt;
+  }
 }
 
 void seq_play_pattern(Sequencer* seq, Pattern* pattern) {
   seq->pattern = pattern;
   seq->mode = PLAY_MODE_PATTERN;
+  seq->isPlaying = true;
+}
+
+void seq_stop(Sequencer* seq) {
+  seq->isPlaying = false;
 }

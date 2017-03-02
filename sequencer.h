@@ -18,6 +18,7 @@ typedef struct {
   int spt; // = (SR * 60) / (4 * BPM)
   
   PlayMode mode;
+  char isPlaying;
   int tick;
   int sample;
 } Sequencer;
@@ -27,5 +28,7 @@ AudioEvent* step_to_event(PatternStep* step);
 void seq_forward(Sequencer* seq, size_t len, BidirectionalIterator* events);
 
 void seq_play_pattern(Sequencer* seq, Pattern* pattern);
+
+void seq_stop(Sequencer* seq);
 
 #endif

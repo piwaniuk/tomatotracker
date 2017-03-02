@@ -58,7 +58,7 @@ void initialize_instruments() {
 
 void initialize_audio(Tracker* tracker) {
   initialize_instruments();
-  tracker->sequencer = (Sequencer){NULL, NULL, NULL, 120, 6000, PLAY_MODE_PATTERN, 0, 0};
+  tracker->sequencer = (Sequencer){NULL, NULL, NULL, 120, 6000, PLAY_MODE_PATTERN, false, 0, 0};
   tracker->aoc = aoc_create(&tracker->sequencer);
   audio_output_initialize(tracker->aoc);
 }
