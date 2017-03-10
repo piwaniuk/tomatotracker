@@ -130,6 +130,7 @@ void choose_instrument(PatternScreen* screen) {
   }
   iter_destroy(iter);
 }
+
 void pattern_screen(PatternScreen* screen) {
   int ch;
   seq_play_pattern(&screen->tracker->sequencer, screen->pattern);

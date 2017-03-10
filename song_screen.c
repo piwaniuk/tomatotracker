@@ -17,6 +17,10 @@
 #define MAX_PAT_COL 3
 static const int SONG_COL_POS[5] = {4, 11, 18, 25, 32};
 
+static ScreenPos song_screen_current_pos(SongScreen* screen) {
+  return (ScreenPos){screen->row + 4, SONG_COL_POS[screen->col]};
+}
+
 static void render_song_screen(SongScreen* screen) {
   move(0, 0);
   print_header();
@@ -38,7 +42,7 @@ static void render_song_screen(SongScreen* screen) {
       else
         phraseName = "......";
       
-      sbuffer_append_string(&line, phraseName);
+      sbuffer_printf(&line, "%-6s", phraseName);
       sbuffer_append_char(&line, ' ');
     }
     sbuffer_append_char(&line, '\n');
@@ -46,8 +50,45 @@ static void render_song_screen(SongScreen* screen) {
     sbuffer_free(&line);
   }
   printw("...");
-  move(screen->row + 4, SONG_COL_POS[screen->col]);
+  move_screen_pos(song_screen_current_pos(screen));
   refresh();
+}
+
+static void new_phrase_command(SongScreen* screen) {
+  char phraseName[7] = "";
+  Phrase* newPhrase;
+  bool hasName;
+  bool editing = true;
+  status_message("Enter a new phrase name");
+  while (editing) {
+    hasName = slug_edit_widget(song_screen_current_pos(screen), phraseName, 6);
+    if (hasName) {
+      if (song_has_phrase(screen->song, phraseName))
+        status_message("Phrase name already exists");
+      else {
+        editing = false;
+      }
+    }
+    else
+      editing = false;
+  }
+  if (hasName) {
+    newPhrase = phrase_create(phraseName);
+    song_add_phrase(screen->song, newPhrase);
+    screen->song->tracks[screen->col][screen->row].phrase = newPhrase;
+    status_message("Created a new phrase");
+  }
+}
+
+static char position_commands(SongScreen* screen, int ch) {
+  switch (ch) {
+    case 'n':
+      new_phrase_command(screen);
+      break;
+    default:
+      return false;
+  }
+  return true;
 }
 
 static char general_commands(SongScreen* screen, int ch) {
@@ -68,12 +109,12 @@ static char general_commands(SongScreen* screen, int ch) {
       //TODO: toggle play
       break;
     case 'Q':
-      screen->finished = TRUE;
+      screen->finished = true;
       break;
     default:
-      return FALSE;
+      return false;
   }
-  return TRUE;
+  return true;
 }
 
 void song_screen(SongScreen* screen) {
@@ -85,8 +126,9 @@ void song_screen(SongScreen* screen) {
     // process a command before redrawing
     while (noCommand) {
       ch = getch();
-      noCommand = FALSE;
-      noCommand = general_commands(screen, ch);
+      noCommand = !position_commands(screen, ch);
+      if (noCommand)
+        noCommand = !general_commands(screen, ch);
     }
   }
 }

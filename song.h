@@ -10,10 +10,14 @@
 #define TRACK_SIZE 999
 
 typedef struct{
-  char* name;
-  char* descr;
+  char name[7];
+  char descr[32];
   Pattern* patterns;
 } Phrase;
+
+
+Phrase* phrase_create(char* name);
+void phrase_destroy(Phrase* phrase);
 
 typedef struct {
   Phrase* phrase;
@@ -31,5 +35,7 @@ typedef struct {
 
 Song* song_create(void);
 void song_destroy(Song* song);
+void song_add_phrase(Song* song, Phrase* phrase);
+bool song_has_phrase(Song* song, char* name);
 
 #endif

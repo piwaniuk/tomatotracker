@@ -1,10 +1,30 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
+#include "ordered_list.h"
 #include "song.h"
 
 #define DEFAULT_SONG_TITLE "New Song"
 #define DEFAULT_TEMPO 120
+
+Phrase* phrase_create(char* name) {
+  Phrase* phrase = malloc(sizeof(Phrase));
+  snprintf(phrase->name, 7, "%s", name);
+  phrase->descr[0] = '\0';
+  phrase->patterns = NULL;
+  return phrase;
+}
+
+void phrase_destroy(Phrase* phrase) {
+  free(phrase);
+}
+
+char phrase_cmp_name(void* v1, void* v2) {
+  Phrase* p1 = (Phrase*)v1;
+  Phrase* p2 = (Phrase*)v2;
+  return strcmp(p1->name, p2->name);
+}
 
 Song* song_create(void) {
   Song* song = malloc(sizeof(Song));
@@ -34,3 +54,18 @@ void song_destroy(Song* song) {
   free(song);
 }
 
+void song_add_phrase(Song* song, Phrase* phrase) {
+  ordered_list_insert_unique(song->phrases, phrase, phrase_cmp_name);
+}
+
+bool song_has_phrase(Song* song, char* name) {
+  int cmp = -1;
+  BidirectionalIterator* iter = list_iterator(song->phrases);
+  while (!iter_is_end(iter) && cmp < 0) {
+    Phrase* phrase = (Phrase*)iter_get(iter);
+    cmp = strcmp(phrase->name, name);
+    iter_next(iter);
+  }
+  iter_destroy(iter);
+  return cmp == 0;
+}
