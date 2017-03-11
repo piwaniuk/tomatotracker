@@ -20,7 +20,12 @@ void phrase_destroy(Phrase* phrase) {
   free(phrase);
 }
 
-char phrase_cmp_name(void* v1, void* v2) {
+char* phrase_repr(void* v) {
+  Phrase* phrase = (Phrase*)v;
+  return phrase->name;
+}
+
+int phrase_cmp_name(void* v1, void* v2) {
   Phrase* p1 = (Phrase*)v1;
   Phrase* p2 = (Phrase*)v2;
   return strcmp(p1->name, p2->name);
@@ -69,3 +74,8 @@ bool song_has_phrase(Song* song, char* name) {
   iter_destroy(iter);
   return cmp == 0;
 }
+
+BidirectionalIterator* song_phrases(Song* song) {
+  return list_iterator(song->phrases);
+}
+

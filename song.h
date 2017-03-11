@@ -18,6 +18,7 @@ typedef struct{
 
 Phrase* phrase_create(char* name);
 void phrase_destroy(Phrase* phrase);
+char* phrase_repr(void* v);
 
 typedef struct {
   Phrase* phrase;
@@ -37,5 +38,6 @@ Song* song_create(void);
 void song_destroy(Song* song);
 void song_add_phrase(Song* song, Phrase* phrase);
 bool song_has_phrase(Song* song, char* name);
+BidirectionalIterator* song_phrases(Song* song);
 
 #endif

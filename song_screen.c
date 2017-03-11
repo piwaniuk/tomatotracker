@@ -21,10 +21,20 @@ static ScreenPos song_screen_current_pos(SongScreen* screen) {
   return (ScreenPos){screen->row + 4, SONG_COL_POS[screen->col]};
 }
 
+static Phrase* song_screen_get_phrase(SongScreen* screen) {
+  return screen->song->tracks[screen->col][screen->row].phrase;
+}
+
+static void song_screen_set_phrase(SongScreen* screen, Phrase* phrase) {
+  screen->song->tracks[screen->col][screen->row].phrase = phrase;
+  // last phrase is always updated
+  screen->lastPhrase = phrase;
+}
+
 static void render_song_screen(SongScreen* screen) {
   move(0, 0);
   print_header();
-  printw("Song P01:\n");
+  printw("Tracks:\n");
   printw("    track1 track2 track3 track4 track5\n");
   for(int i = 0; i < 19; ++i) {
     SBuffer line = sbuffer_init(81);
@@ -49,7 +59,6 @@ static void render_song_screen(SongScreen* screen) {
     printw(sbuffer_get(&line));
     sbuffer_free(&line);
   }
-  printw("...");
   move_screen_pos(song_screen_current_pos(screen));
   refresh();
 }
@@ -75,15 +84,37 @@ static void new_phrase_command(SongScreen* screen) {
   if (hasName) {
     newPhrase = phrase_create(phraseName);
     song_add_phrase(screen->song, newPhrase);
-    screen->song->tracks[screen->col][screen->row].phrase = newPhrase;
+    song_screen_set_phrase(screen, newPhrase);
     status_message("Created a new phrase");
   }
+}
+
+static void choose_phrase_command(SongScreen* screen) {
+  BidirectionalIterator* iter = song_phrases(screen->song);
+  //only if there is any phrase
+  if (!iter_is_end(iter)) {
+    // navigate to current phrase or last used phrase
+    if (song_screen_get_phrase(screen) != NULL)
+      iter_find_forward(iter, song_screen_get_phrase(screen));
+    else 
+      iter_find_forward(iter, screen->lastPhrase);
+    // run widget
+    void* choice = list_choice_widget(iter, phrase_repr);
+    // update song
+    if (choice != NULL) {
+      song_screen_set_phrase(screen, (Phrase*)choice);
+    }
+  }
+  iter_destroy(iter);
 }
 
 static char position_commands(SongScreen* screen, int ch) {
   switch (ch) {
     case 'n':
       new_phrase_command(screen);
+      break;
+    case '\n':
+      choose_phrase_command(screen);
       break;
     default:
       return false;

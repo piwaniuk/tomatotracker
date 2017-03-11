@@ -14,7 +14,8 @@ void print_header() {
 }
 
 void status_message(char* message) {
-  move(24, 0);
+  move(23, 0);
+  insertln();
   printw(message);
 }
 
@@ -23,7 +24,8 @@ void move_screen_pos(ScreenPos screenPos) {
 }
 
 void* list_choice_widget(BidirectionalIterator* iter, char* (repr)(void*)) {
-  char finished = FALSE;
+  bool finished = false;
+  void* ret = NULL;
   int x, y;
   getyx(stdscr, y, x);
   while (!finished) {
@@ -33,7 +35,8 @@ void* list_choice_widget(BidirectionalIterator* iter, char* (repr)(void*)) {
     int ch = getch();
     switch (ch) {
       case '\n':
-        finished = TRUE;
+        ret = iter_get(iter);
+        finished = true;
         break;
       case KEY_DOWN:
         if (!iter_is_last(iter))
@@ -44,11 +47,11 @@ void* list_choice_widget(BidirectionalIterator* iter, char* (repr)(void*)) {
           iter_prev(iter);
         break;
       case 27:
-        finished = TRUE;
+        finished = true;
         break;
     }
   }
-  return iter_get(iter);
+  return ret;
 }
 
 bool slug_edit_widget(ScreenPos screenPos, char* text, size_t len) {
