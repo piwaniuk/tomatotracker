@@ -25,6 +25,8 @@ in rows.
 Keybindings:
 * arrows - navigate
 * n - create a new phrase
+* . - clear phrase
+* SPACE - reuse last used phrase
 * ENTER - choose an existing phrase
 * ESC - cancel editing
 * Q - quit

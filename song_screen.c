@@ -27,8 +27,9 @@ static Phrase* song_screen_get_phrase(SongScreen* screen) {
 
 static void song_screen_set_phrase(SongScreen* screen, Phrase* phrase) {
   screen->song->tracks[screen->col][screen->row].phrase = phrase;
-  // last phrase is always updated
-  screen->lastPhrase = phrase;
+  // last phrase is always updated, but shouldn't be NULL
+  if (phrase != NULL)
+    screen->lastPhrase = phrase;
 }
 
 static void render_song_screen(SongScreen* screen) {
@@ -108,6 +109,15 @@ static void choose_phrase_command(SongScreen* screen) {
   iter_destroy(iter);
 }
 
+static void last_phrase_command(SongScreen* screen) {
+  if (screen->lastPhrase)
+    song_screen_set_phrase(screen, screen->lastPhrase);
+}
+
+static void clear_phrase_command(SongScreen* screen) {
+  song_screen_set_phrase(screen, NULL);
+}
+
 static char position_commands(SongScreen* screen, int ch) {
   switch (ch) {
     case 'n':
@@ -115,6 +125,12 @@ static char position_commands(SongScreen* screen, int ch) {
       break;
     case '\n':
       choose_phrase_command(screen);
+      break;
+    case ' ':
+      last_phrase_command(screen);
+      break;
+    case '.':
+      clear_phrase_command(screen);
       break;
     default:
       return false;
