@@ -2,6 +2,7 @@
 #define SONG_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "list.h"
 #include "pattern.h"

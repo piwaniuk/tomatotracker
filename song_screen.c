@@ -9,6 +9,7 @@
 #include "audio_output.h"
 #include "sequencer.h"
 #include "sbuffer.h"
+#include "phrase_screen.h"
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
 #define max(a, b) ((a) > (b) ? (a) : (b))
@@ -118,6 +119,18 @@ static void clear_phrase_command(SongScreen* screen) {
   song_screen_set_phrase(screen, NULL);
 }
 
+static void edit_phrase_command(SongScreen* screen) {
+  Phrase* phrase = song_screen_get_phrase(screen);
+  if (phrase != NULL) {
+    PhraseScreen phraseScreen = {
+      false, song_screen_get_phrase(screen), 0, 0, NULL, screen->tracker
+    };
+    phrase_screen(&phraseScreen);
+  }
+  else
+    status_message("No phrase to edit here.");
+}
+
 static char position_commands(SongScreen* screen, int ch) {
   switch (ch) {
     case 'n':
@@ -131,6 +144,9 @@ static char position_commands(SongScreen* screen, int ch) {
       break;
     case '.':
       clear_phrase_command(screen);
+      break;
+    case 'e':
+      edit_phrase_command(screen);
       break;
     default:
       return false;
