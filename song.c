@@ -12,11 +12,14 @@ Phrase* phrase_create(char* name) {
   Phrase* phrase = malloc(sizeof(Phrase));
   snprintf(phrase->name, 7, "%s", name);
   phrase->descr[0] = '\0';
-  phrase->patterns = NULL;
+  phrase->patterns = malloc(sizeof(Pattern*) * TRACK_SIZE);
+  for(int i = 0; i < TRACK_SIZE; ++i)
+    phrase->patterns[i] = NULL;
   return phrase;
 }
 
 void phrase_destroy(Phrase* phrase) {
+  free(phrase->patterns);
   free(phrase);
 }
 
@@ -25,7 +28,8 @@ char* phrase_repr(void* v) {
   return phrase->name;
 }
 
-int phrase_cmp_name(void* v1, void* v2) {
+int
+ phrase_cmp_name(void* v1, void* v2) {
   Phrase* p1 = (Phrase*)v1;
   Phrase* p2 = (Phrase*)v2;
   return strcmp(p1->name, p2->name);
@@ -77,5 +81,25 @@ bool song_has_phrase(Song* song, char* name) {
 
 BidirectionalIterator* song_phrases(Song* song) {
   return list_iterator(song->phrases);
+}
+
+void song_add_pattern(Song* song, Pattern* pattern) {
+  ordered_list_insert_unique(song->patterns, pattern, pattern_cmp_name);
+}
+
+bool song_has_pattern(Song* song, char* name) {
+  int cmp = -1;
+  BidirectionalIterator* iter = list_iterator(song->patterns);
+  while (!iter_is_end(iter) && cmp < 0) {
+    Pattern* pattern = (Pattern*)iter_get(iter);
+    cmp = strcmp(pattern->identifier, name);
+    iter_next(iter);
+  }
+  iter_destroy(iter);
+  return cmp == 0;
+}
+
+BidirectionalIterator* song_patterns(Song* song) {
+  return list_iterator(song->patterns);
 }
 

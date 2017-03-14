@@ -13,7 +13,7 @@
 typedef struct{
   char name[7];
   char descr[32];
-  Pattern* patterns;
+  Pattern** patterns;
 } Phrase;
 
 
@@ -37,8 +37,13 @@ typedef struct {
 
 Song* song_create(void);
 void song_destroy(Song* song);
+
 void song_add_phrase(Song* song, Phrase* phrase);
 bool song_has_phrase(Song* song, char* name);
 BidirectionalIterator* song_phrases(Song* song);
+
+void song_add_pattern(Song* song, Pattern* pattern);
+bool song_has_pattern(Song* song, char* name);
+BidirectionalIterator* song_patterns(Song* song);
 
 #endif

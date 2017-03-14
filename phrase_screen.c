@@ -13,6 +13,17 @@ static ScreenPos phrase_screen_current_pos(PhraseScreen* screen) {
   return (ScreenPos){screen->row + 4, PHRASE_COL_POS[screen->col]};
 }
 
+static Pattern* phrase_screen_get_pattern(PhraseScreen* screen) {
+  return screen->phrase->patterns[screen->row];
+}
+
+static void phrase_screen_set_pattern(PhraseScreen* screen, Pattern* pattern) {
+  screen->phrase->patterns[screen->row] = pattern;
+  // last phrase is always updated, but shouldn't be NULL
+  if (pattern != NULL)
+    screen->lastPattern = pattern;
+}
+
 void render_phrase_screen(PhraseScreen* screen) {
   move(0, 0);
   print_header();
@@ -20,8 +31,15 @@ void render_phrase_screen(PhraseScreen* screen) {
   printw("    patt.\n");
   for(int i = 0; i < 19; ++i) {
     SBuffer line = sbuffer_init(81);
+    char* patternName;
+    Pattern* pattern = screen->phrase->patterns[i];
+    if (pattern != NULL)
+      patternName = pattern_repr(pattern);
+    else
+      patternName = "......";
+
     sbuffer_printf(&line, "%.3d%c", i + 1, ' ');
-    sbuffer_append_string(&line, "......");
+    sbuffer_printf(&line, "%-6s", patternName);
     sbuffer_append_char(&line, '\n');
     printw(sbuffer_get(&line));
     sbuffer_free(&line);
@@ -30,8 +48,88 @@ void render_phrase_screen(PhraseScreen* screen) {
   refresh();
 }
 
+static void new_pattern_command(PhraseScreen* screen) {
+  char patternName[7] = "";
+  bool hasName;
+  bool editing = true;
+  status_message("Enter a new pattern name");
+  while (editing) {
+    hasName = slug_edit_widget(phrase_screen_current_pos(screen), patternName, 6);
+    if (hasName) {
+      if (song_has_pattern(screen->song, patternName))
+        status_message("Pattern name already exists");
+      else {
+        editing = false;
+      }
+    }
+    else
+      editing = false;
+  }
+  if (hasName) {
+    Pattern* newPattern = pattern_create(patternName);
+    song_add_pattern(screen->song, newPattern);
+    phrase_screen_set_pattern(screen, newPattern);
+    status_message("Created a new pattern");
+  }
+}
+
+static void choose_pattern_command(PhraseScreen* screen) {
+  BidirectionalIterator* iter = song_patterns(screen->song);
+  //only if there is any phrase
+  if (!iter_is_end(iter)) {
+    // navigate to current phrase or last used phrase
+    if (phrase_screen_get_pattern(screen) != NULL)
+      iter_find_forward(iter, phrase_screen_get_pattern(screen));
+    else
+      iter_find_forward(iter, screen->lastPattern);
+    // run widget
+    void* choice = list_choice_widget(iter, pattern_repr);
+    // update song
+    if (choice != NULL) {
+      phrase_screen_set_pattern(screen, (Pattern*)choice);
+    }
+  }
+  iter_destroy(iter);
+}
+
+static void last_pattern_command(PhraseScreen* screen) {
+  if (screen->lastPattern)
+    phrase_screen_set_pattern(screen, screen->lastPattern);
+}
+
+static void clear_pattern_command(PhraseScreen* screen) {
+  phrase_screen_set_pattern(screen, NULL);
+}
+
+/*static void edit_pattern_command(SongScreen* screen) {
+  Phrase* phrase = song_screen_get_phrase(screen);
+  if (phrase != NULL) {
+    PhraseScreen phraseScreen = {
+      false, song_screen_get_phrase(screen), 0, 0, NULL, screen->tracker
+    };
+    phrase_screen(&phraseScreen);
+  }
+  else
+    status_message("No phrase to edit here.");
+}*/
+
 static char position_commands(PhraseScreen* screen, int ch) {
   switch (ch) {
+    case 'n':
+      new_pattern_command(screen);
+      break;
+    case '\n':
+      choose_pattern_command(screen);
+      break;
+    case ' ':
+      last_pattern_command(screen);
+      break;
+    case '.':
+      clear_pattern_command(screen);
+      break;
+    case 'e':
+      //edit_pattern_command(screen);
+      break;
     default:
       return false;
   }

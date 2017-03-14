@@ -7,6 +7,7 @@
 
 typedef struct {
   char finished;
+  Song* song;
   Phrase* phrase;
   int row;
   int col;

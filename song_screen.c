@@ -123,7 +123,11 @@ static void edit_phrase_command(SongScreen* screen) {
   Phrase* phrase = song_screen_get_phrase(screen);
   if (phrase != NULL) {
     PhraseScreen phraseScreen = {
-      false, song_screen_get_phrase(screen), 0, 0, NULL, screen->tracker
+      false,
+      screen->song, song_screen_get_phrase(screen),
+      0, 0,
+      NULL,
+      screen->tracker
     };
     phrase_screen(&phraseScreen);
   }

@@ -17,4 +17,24 @@ typedef struct {
   PatternStep steps[20];
 } Pattern;
 
+/**
+ * Create a new empty pattern with given name.
+ */
+Pattern* pattern_create(char* name);
+
+/**
+ * Destroy the pattern and free all memory allocated for it.
+ */
+void pattern_destroy(Pattern* pattern);
+
+/**
+ * Compare two patterns by their names.
+ */
+int pattern_cmp_name(void* p1, void* p2);
+
+/**
+ * Return a string representation of the pattern
+ */
+char* pattern_repr(void* pattern);
+
 #endif

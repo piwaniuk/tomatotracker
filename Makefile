@@ -2,8 +2,8 @@ all: tracker
 
 OBJECTS=tracker.o widgets.o audio_output.o iterator.o list.o pattern_screen.o \
   instrument.o audio_event.o sequencer.o synth.o 1osc.o song.o \
-  audio_event_interface.c song_screen.o phrase_screen.o
-CFLAGS=-Werror -g
+  audio_event_interface.c song_screen.o phrase_screen.o pattern.o
+CFLAGS=-Werror -g -std=c99
 LDFLAGS=-lncurses -lSDL2 -g
 
 tracker: $(OBJECTS)
