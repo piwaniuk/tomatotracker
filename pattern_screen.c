@@ -45,13 +45,12 @@ void render_pattern_screen(PatternScreen* screen) {
     char mark = ' ';
     if (screen->pattern == screen->tracker->sequencer.pattern && screen->tracker->sequencer.tick == i)
       mark = '>';
-    sprintf(line, "%.3d%c%s %s .... ....\n", i + 1, mark, note, instrument);
+    sprintf(line, "%.3d%c%s %-6s .... ....\n", i + 1, mark, note, instrument);
     printw(line);
   }
   for(int i = screen->pattern->length; i < 19; ++i)
     printw("\n");
   if ((screen->col == 0 || screen->col == 1) && screen->pattern->steps[screen->row].inst) {
-    char status[41];
     printw("%s\n", screen->pattern->steps[screen->row].inst->description);
   }
   else 

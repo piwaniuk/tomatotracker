@@ -6,7 +6,7 @@
 
 LinkedList* INSTRUMENTS;
 
-Instrument* instrument_create_default() {
+Instrument* instrument_create_default(void) {
   Instrument* ret = malloc(sizeof(Instrument));
   Parameters1Osc* params = malloc(sizeof(Parameters1Osc));
   
@@ -23,9 +23,10 @@ Instrument* instrument_create_default() {
     40000,
     800,
   };
+  return ret;
 }
 
-void* instrument_destroy(Instrument* instrument) {
+void instrument_destroy(Instrument* instrument) {
   free(instrument->parameters);
   free(instrument);
 }

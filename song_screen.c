@@ -42,7 +42,6 @@ static void render_song_screen(SongScreen* screen) {
     SBuffer line = sbuffer_init(81);
     sbuffer_printf(&line, "%.3d%c", i + 1, ' ');
     for(int j = 0; j < TRACK_COUNT; ++j) {
-      TrackEntry tmp = {NULL, 0};
       TrackEntry* pos = &screen->song->tracks[j][i];
       char* phraseName;
       if(pos->phrase != NULL)
