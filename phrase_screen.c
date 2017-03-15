@@ -1,6 +1,7 @@
 #include <ncurses.h>
 
 #include "phrase_screen.h"
+#include "pattern_screen.h"
 #include "widgets.h"
 #include "sbuffer.h"
 
@@ -101,17 +102,17 @@ static void clear_pattern_command(PhraseScreen* screen) {
   phrase_screen_set_pattern(screen, NULL);
 }
 
-/*static void edit_pattern_command(SongScreen* screen) {
-  Phrase* phrase = song_screen_get_phrase(screen);
-  if (phrase != NULL) {
-    PhraseScreen phraseScreen = {
-      false, song_screen_get_phrase(screen), 0, 0, NULL, screen->tracker
+static void edit_pattern_command(PhraseScreen* screen) {
+  Pattern* pattern = phrase_screen_get_pattern(screen);
+  if (pattern != NULL) {
+    PatternScreen patternScreen = {
+      false, screen->song, pattern, 0, 0, song_first_instrument(screen->song), screen->tracker
     };
-    phrase_screen(&phraseScreen);
+    pattern_screen(&patternScreen);
   }
   else
-    status_message("No phrase to edit here.");
-}*/
+    status_message("No pattern to edit here.");
+}
 
 static char position_commands(PhraseScreen* screen, int ch) {
   switch (ch) {
@@ -128,7 +129,7 @@ static char position_commands(PhraseScreen* screen, int ch) {
       clear_pattern_command(screen);
       break;
     case 'e':
-      //edit_pattern_command(screen);
+      edit_pattern_command(screen);
       break;
     default:
       return false;

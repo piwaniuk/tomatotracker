@@ -6,6 +6,7 @@
 
 #include "list.h"
 #include "pattern.h"
+#include "instrument.h"
 
 #define TRACK_COUNT 5
 #define TRACK_SIZE 999
@@ -45,5 +46,10 @@ BidirectionalIterator* song_phrases(Song* song);
 void song_add_pattern(Song* song, Pattern* pattern);
 bool song_has_pattern(Song* song, char* name);
 BidirectionalIterator* song_patterns(Song* song);
+
+void song_add_instrument(Song* song, Instrument* instrument);
+bool song_has_instrument(Song* song, char* name);
+BidirectionalIterator* song_instruments(Song* song);
+Instrument* song_first_instrument(Song* song);
 
 #endif

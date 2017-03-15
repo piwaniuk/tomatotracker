@@ -1,6 +1,7 @@
 #ifndef PATTERN_SCREEN_H
 #define PATTERN_SCREEN_H
 
+#include "song.h"
 #include "pattern.h"
 #include "instrument.h"
 #include "audio_output.h"
@@ -8,6 +9,7 @@
 
 typedef struct {
   char finished;
+  Song* song;
   Pattern* pattern;
   int row;
   int col;

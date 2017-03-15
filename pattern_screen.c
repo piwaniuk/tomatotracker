@@ -121,7 +121,7 @@ char general_commands(PatternScreen* screen, int ch) {
 
 void choose_instrument(PatternScreen* screen) {
   
-  BidirectionalIterator* iter = song_instruments(NULL);
+  BidirectionalIterator* iter = song_instruments(screen->song);
   iter_find_forward(iter, screen->pattern->steps[screen->row].inst);
   void* choice = list_choice_widget(iter, instrument_repr);
   if (choice != NULL) {

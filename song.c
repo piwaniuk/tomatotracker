@@ -40,6 +40,7 @@ Song* song_create(void) {
   strcpy(song->title, DEFAULT_SONG_TITLE);
   song->tempo = DEFAULT_TEMPO;
   song->instruments = list_create();
+  song_add_instrument(song, instrument_create_default());
   song->phrases = list_create();
   song->patterns = list_create();
   song->tracks = malloc(sizeof(TrackEntry*) * TRACK_COUNT);
@@ -52,6 +53,7 @@ Song* song_create(void) {
 }
 
 void song_destroy(Song* song) {
+  //TODO: free contents first
   list_destroy(song->instruments);
   list_destroy(song->phrases);
   list_destroy(song->patterns);
@@ -103,3 +105,19 @@ BidirectionalIterator* song_patterns(Song* song) {
   return list_iterator(song->patterns);
 }
 
+void song_add_instrument(Song* song, Instrument* instrument) {
+  ordered_list_insert_unique(
+    song->instruments, instrument, instrument_cmp_name);
+}
+
+BidirectionalIterator* song_instruments(Song* song) {
+  return list_iterator(song->instruments);
+}
+
+Instrument* song_first_instrument(Song* song) {
+  Instrument* ret;
+  BidirectionalIterator* iter = song_instruments(song);
+  ret = (Instrument*)iter_get(iter);
+  iter_destroy(iter);
+  return ret; 
+}

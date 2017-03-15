@@ -18,7 +18,9 @@ typedef struct {
   void* parameters;
 } Instrument;
 
-BidirectionalIterator* song_instruments(void* song);
+
+Instrument* instrument_create_default();
+int instrument_cmp_name(void* v1, void* v2);
 char* instrument_repr(void*);
 
 #endif
