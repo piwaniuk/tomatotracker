@@ -43,7 +43,7 @@ void render_pattern_screen(PatternScreen* screen) {
     if (screen->pattern->steps[i].n)
       instrument = screen->pattern->steps[i].inst->identifier;
     char mark = ' ';
-    if (screen->pattern == screen->tracker->sequencer.pattern && screen->tracker->sequencer.tick == i)
+    if (seq_pattern_mark(&screen->tracker->sequencer, screen->pattern, i))
       mark = '>';
     sprintf(line, "%.3d%c%s %-6s .... ....\n", i + 1, mark, note, instrument);
     printw(line);
@@ -92,6 +92,13 @@ char note_column_commands(PatternScreen* screen, int ch) {
   }
 }
 
+static void command_toggle_play_this(PatternScreen* screen) {
+  if (seq_is_playing(&screen->tracker->sequencer))
+    seq_stop(&screen->tracker->sequencer);
+  else
+    seq_play_pattern(&screen->tracker->sequencer, screen->pattern, screen->row);
+}
+
 char general_commands(PatternScreen* screen, int ch) {
   switch (ch) {
     case KEY_DOWN:
@@ -107,7 +114,7 @@ char general_commands(PatternScreen* screen, int ch) {
       screen->col = min(MAX_PAT_COL, screen->col + 1);
       break;
     case 'p':
-      //TODO: toggle play
+      command_toggle_play_this(screen);
       break;
     case 'Q':
       screen->finished = TRUE;
@@ -132,7 +139,6 @@ void choose_instrument(PatternScreen* screen) {
 
 void pattern_screen(PatternScreen* screen) {
   int ch;
-  seq_play_pattern(&screen->tracker->sequencer, screen->pattern);
   while (!screen->finished) {
     char noCommand = TRUE;
     render_pattern_screen(screen);
