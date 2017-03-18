@@ -20,6 +20,10 @@ static Pattern* phrase_screen_get_pattern(PhraseScreen* screen) {
 
 static void phrase_screen_set_pattern(PhraseScreen* screen, Pattern* pattern) {
   phrase_set_pattern(screen->phrase, pattern, screen->row);
+
+  // notify song about phrase update
+  song_phrase_edited(screen->song, screen->phrase);
+
   // last phrase is always updated, but shouldn't be NULL
   if (pattern != NULL)
     screen->lastPattern = pattern;

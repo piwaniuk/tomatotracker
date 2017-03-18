@@ -27,7 +27,8 @@ static Phrase* song_screen_get_phrase(SongScreen* screen) {
 }
 
 static void song_screen_set_phrase(SongScreen* screen, Phrase* phrase) {
-  screen->song->tracks[screen->col][screen->row].phrase = phrase;
+  song_set_phrase(screen->song, phrase, screen->col, screen->row);
+
   // last phrase is always updated, but shouldn't be NULL
   if (phrase != NULL)
     screen->lastPhrase = phrase;
@@ -46,13 +47,21 @@ static void render_song_screen(SongScreen* screen) {
       char* phraseName;
       if(pos->phrase != NULL)
         phraseName = pos->phrase->name;
-      else if (pos->steps > 1)
-        phraseName = "|    |";
-      else if (pos->steps == 1)
-        phraseName = "|____|";
-      else
+      else {
         phraseName = "......";
-      
+        // check preceding phrase's tail
+        if (i > 0) {
+          int prec = (i - 1) - screen->song->tracks[j][i - 1].tail;
+          Phrase* precPhrase = screen->song->tracks[j][prec].phrase;
+          if (precPhrase != NULL) {
+            int drawTail = precPhrase->length - (i - prec);
+            if (drawTail > 1)
+              phraseName = "|    |";
+            else if (drawTail == 1)
+              phraseName = " \\__/ ";
+          }
+        }
+      }
       sbuffer_printf(&line, "%-6s", phraseName);
       sbuffer_append_char(&line, ' ');
     }

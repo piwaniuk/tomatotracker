@@ -59,12 +59,19 @@ Song* song_create(void) {
   song_add_instrument(song, instrument_create_default());
   song->phrases = list_create();
   song->patterns = list_create();
+
   song->tracks = malloc(sizeof(TrackEntry*) * TRACK_COUNT);
   for(int i = 0; i < TRACK_COUNT; ++i) {
     song->tracks[i] = malloc(sizeof(TrackEntry) * TRACK_SIZE);
     for(int j = 0; j < TRACK_SIZE; ++j)
       song->tracks[i][j] = (TrackEntry){NULL, 0};
   }
+
+  song->lastPos = malloc(sizeof(int32_t) * TRACK_COUNT);
+  for(int i = 0; i < TRACK_COUNT; ++i)
+    song->lastPos[i] = 0;
+  song->length = 1;
+
   return song;
 }
 
@@ -76,8 +83,9 @@ void song_destroy(Song* song) {
   
   for(int i = 0; i < TRACK_COUNT; ++i)
     free(song->tracks[i]);
+
   free(song->tracks);
-  
+  free(song->lastPos);
   free(song);
 }
 
@@ -99,6 +107,70 @@ bool song_has_phrase(Song* song, char* name) {
 
 BidirectionalIterator* song_phrases(Song* song) {
   return list_iterator(song->phrases);
+}
+
+static uint16_t song_track_length(Song* song, uint8_t trackN) {
+  uint16_t pos = song->lastPos[trackN];
+  Phrase* phrase = song->tracks[trackN][pos].phrase;
+  if (phrase == NULL)
+    return 1;
+  else
+    return pos + phrase->length;
+}
+
+static void song_update_length(Song* song) {
+  song->length = 1;
+  for(int i = 0; i < TRACK_COUNT; ++i) {
+    if (song_track_length(song, i) > song->length)
+      song->length = song_track_length(song, i);
+  }
+}
+
+void song_set_phrase(Song* song, Phrase* phrase, uint8_t trackN, uint16_t pos) {
+  // update track contents
+  song->tracks[trackN][pos].phrase = phrase;
+
+  // update last position for the track
+  if (phrase == NULL && pos == song->lastPos[trackN]) {
+    // clearing last phrase in track
+    if (pos > 0) {
+      song->lastPos[trackN] = (pos - 1) - song->tracks[trackN][pos - 1].tail;
+    }
+    song_update_length(song);
+  }
+  else if (phrase != NULL && pos >= song->lastPos[trackN]) {
+    // adding or updating phrase at the end
+
+    // update tail BEFORE pos
+    uint16_t i = pos;
+    while (song->tracks[trackN][i].tail == 0 && i > song->lastPos[trackN]) {
+      song->tracks[trackN][i].tail = i - song->lastPos[trackN];
+      --i;
+    }
+
+    // set new last phrase position
+    song->lastPos[trackN] = pos;
+    song_update_length(song);
+  }
+
+  // update tail AFTER pos
+  if (phrase != NULL) {
+    song->tracks[trackN][pos].tail = 0;
+  }
+  else if (pos > 0) {
+    song->tracks[trackN][pos].tail = song->tracks[trackN][pos - 1].tail + 1;
+  }
+  ++pos;
+  while (pos < song_track_length(song, trackN) && song->tracks[trackN][pos].phrase == NULL) {
+    song->tracks[trackN][pos].tail = song->tracks[trackN][pos - 1].tail + 1;
+    ++pos;
+  }
+}
+
+void song_phrase_edited(Song* song, Phrase* phrase) {
+  for(int i = 0; i < TRACK_COUNT; ++i)
+    if (song->tracks[i][song->lastPos[i]].phrase == phrase)
+      song_set_phrase(song, phrase, i, song->lastPos[i]);
 }
 
 void song_add_pattern(Song* song, Pattern* pattern) {

@@ -30,7 +30,7 @@ char* phrase_repr(void* v);
 
 typedef struct {
   Phrase* phrase;
-  uint16_t steps;
+  uint16_t tail;
 } TrackEntry;
 
 typedef struct {
@@ -40,6 +40,8 @@ typedef struct {
   LinkedList* phrases;
   LinkedList* patterns;
   TrackEntry** tracks;
+  uint16_t length;
+  uint16_t* lastPos;
 } Song;
 
 Song* song_create(void);
@@ -47,6 +49,8 @@ void song_destroy(Song* song);
 
 void song_add_phrase(Song* song, Phrase* phrase);
 bool song_has_phrase(Song* song, char* name);
+void song_set_phrase(Song* song, Phrase* phrase, uint8_t trackN, uint16_t pos);
+void song_phrase_edited(Song* song, Phrase* phrase);
 BidirectionalIterator* song_phrases(Song* song);
 
 void song_add_pattern(Song* song, Pattern* pattern);
