@@ -12,6 +12,8 @@ Phrase* phrase_create(char* name) {
   Phrase* phrase = malloc(sizeof(Phrase));
   snprintf(phrase->name, 7, "%s", name);
   phrase->descr[0] = '\0';
+  // phrase length is always at least 1
+  phrase->length = 1;
   phrase->patterns = malloc(sizeof(Pattern*) * TRACK_SIZE);
   for(int i = 0; i < TRACK_SIZE; ++i)
     phrase->patterns[i] = NULL;
@@ -21,6 +23,20 @@ Phrase* phrase_create(char* name) {
 void phrase_destroy(Phrase* phrase) {
   free(phrase->patterns);
   free(phrase);
+}
+
+void phrase_set_pattern(Phrase* phrase, Pattern* pattern, uint16_t pos) {
+  phrase->patterns[pos] = pattern;
+
+  // update phrase length
+  if (pattern == NULL) {
+    // decrease phrase length when pattern is cleared
+    while (phrase->length > 1 && phrase->patterns[phrase->length - 1] == NULL)
+      --phrase->length;
+  }
+  else if (pos + 1 > phrase->length) {
+     phrase->length = pos + 1;
+  }
 }
 
 char* phrase_repr(void* v) {

@@ -14,12 +14,18 @@
 typedef struct{
   char name[7];
   char descr[32];
+  uint16_t length;
   Pattern** patterns;
 } Phrase;
 
 
 Phrase* phrase_create(char* name);
 void phrase_destroy(Phrase* phrase);
+
+/**
+ * Set pattern at given position. Update length if necessary
+ */
+void phrase_set_pattern(Phrase* phrase, Pattern* pattern, uint16_t pos);
 char* phrase_repr(void* v);
 
 typedef struct {

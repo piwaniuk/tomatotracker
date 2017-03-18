@@ -19,7 +19,7 @@ static Pattern* phrase_screen_get_pattern(PhraseScreen* screen) {
 }
 
 static void phrase_screen_set_pattern(PhraseScreen* screen, Pattern* pattern) {
-  screen->phrase->patterns[screen->row] = pattern;
+  phrase_set_pattern(screen->phrase, pattern, screen->row);
   // last phrase is always updated, but shouldn't be NULL
   if (pattern != NULL)
     screen->lastPattern = pattern;
