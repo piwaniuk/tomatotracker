@@ -85,9 +85,10 @@ static void choose_pattern_command(PhraseScreen* screen) {
     // navigate to current phrase or last used phrase
     if (phrase_screen_get_pattern(screen) != NULL)
       iter_find_forward(iter, phrase_screen_get_pattern(screen));
-    else
+    else if (screen->lastPattern != NULL)
       iter_find_forward(iter, screen->lastPattern);
-    // run widget
+    // TODO: preserve lastPattern between phrases
+    // display widget
     void* choice = list_choice_widget(iter, pattern_repr);
     // update song
     if (choice != NULL) {
@@ -141,6 +142,13 @@ static char position_commands(PhraseScreen* screen, int ch) {
   return true;
 }
 
+static void command_toggle_play_this(PhraseScreen* screen) {
+  if (seq_is_playing(&screen->tracker->sequencer))
+    seq_stop(&screen->tracker->sequencer);
+  else
+    seq_play_phrase(&screen->tracker->sequencer, screen->phrase, screen->row);
+}
+
 static char general_commands(PhraseScreen* screen, int ch) {
   switch (ch) {
     case KEY_DOWN:
@@ -156,7 +164,7 @@ static char general_commands(PhraseScreen* screen, int ch) {
       screen->col = min(0, screen->col + 1);
       break;
     case 'p':
-      //TODO: toggle play
+      command_toggle_play_this(screen);
       break;
     case 'Q':
       screen->finished = true;

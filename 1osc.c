@@ -37,7 +37,7 @@ uint16_t gen_cmb_envelope(Parameters1Osc* params, uint32_t t) {
 char ae_1osc_fill(AudioEvent* event, sample_t* buffer, size_t len) {
   State1Osc* state = (State1Osc*)event->state;
   for(int i = 0; i < len; ++i) {
-    buffer[i] = gen_cmb_envelope(state->params, state->time + i);
+    buffer[i] = gen_cmb_envelope(state->params, state->time + i) / 4;
     buffer[i] = buffer[i] * (gen_triangle(state->phase) - SAMPLE_0) / 65536 + SAMPLE_0;
     state->phase += state->phaseStep;
   }

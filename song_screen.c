@@ -58,7 +58,7 @@ static void render_song_screen(SongScreen* screen) {
             if (drawTail > 1)
               phraseName = "|    |";
             else if (drawTail == 1)
-              phraseName = " \\__/ ";
+              phraseName = "|___/ ";
           }
         }
       }
@@ -166,6 +166,13 @@ static char position_commands(SongScreen* screen, int ch) {
   return true;
 }
 
+static void command_toggle_play_this(SongScreen* screen) {
+  if (seq_is_playing(&screen->tracker->sequencer))
+    seq_stop(&screen->tracker->sequencer);
+  else
+    seq_play_song(&screen->tracker->sequencer, screen->song, screen->row);
+}
+
 static char general_commands(SongScreen* screen, int ch) {
   switch (ch) {
     case KEY_DOWN:
@@ -181,7 +188,7 @@ static char general_commands(SongScreen* screen, int ch) {
       screen->col = min(4, screen->col + 1);
       break;
     case 'p':
-      //TODO: toggle play
+      command_toggle_play_this(screen);
       break;
     case 'Q':
       screen->finished = true;
