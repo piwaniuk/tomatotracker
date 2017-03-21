@@ -1,20 +1,41 @@
-all: tracker
+# Build configuration
 
-OBJECTS=tracker.o widgets.o audio_output.o iterator.o list.o pattern_screen.o \
-  instrument.o audio_event.o sequencer.o synth.o 1osc.o song.o \
-  audio_event_interface.c song_screen.o phrase_screen.o pattern.o
+BIN_DIR=bin
+SRC_DIR=src
+OBJ_DIR=obj
+EXECUTABLE=tracker
+MODULES=tracker widgets audio_output iterator list pattern_screen \
+  instrument audio_event sequencer synth 1osc song \
+  audio_event_interface song_screen phrase_screen pattern
+
+# Build logic
+
+TRACKER=$(BIN_DIR)/$(EXECUTABLE)
+SUB_DIRS=$(BIN_DIR) $(SRC_DIR) $(OBJ_DIR)
+OBJECTS=$(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(MODULES)))
+
+all: $(BIN_DIR) $(TRACKER)
+
 CFLAGS=-Wall -Werror -g -std=c99
 LDFLAGS=-lncurses -lSDL2 -g
 
-tracker: $(OBJECTS)
+$(SUB_DIRS):
+	@mkdir $@
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	$(CC) $< -c $(CFLAGS) -o $@
+
+$(TRACKER): $(OBJECTS)
+	$(CC) $^ $(LDFLAGS) -o $@
 
 clean:
-	-$(RM) tracker
-	-$(RM) *.o
-	-$(RM) depend
+	-$(RM) $(TRACKER)
+	-$(RM) $(OBJECTS)
+	-rmdir $(OBJ_DIR)
+	-rmdir $(BIN_DIR)
 
 depend:
-	gcc -M *.c > depend.inc
+	gcc -M $(SRC_DIR)/*.c > depend.inc
 
 .PHONY: clean depend
 
