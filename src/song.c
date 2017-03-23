@@ -8,7 +8,7 @@
 #define DEFAULT_SONG_TITLE "New Song"
 #define DEFAULT_TEMPO 120
 
-Phrase* phrase_create(char* name) {
+Phrase* phrase_create(const char* name) {
   Phrase* phrase = malloc(sizeof(Phrase));
   snprintf(phrase->name, 7, "%s", name);
   phrase->descr[0] = '\0';
@@ -93,7 +93,7 @@ void song_add_phrase(Song* song, Phrase* phrase) {
   ordered_list_insert_unique(song->phrases, phrase, phrase_cmp_name);
 }
 
-bool song_has_phrase(Song* song, char* name) {
+bool song_has_phrase(Song* song, const char* name) {
   int cmp = -1;
   BidirectionalIterator* iter = list_iterator(song->phrases);
   while (!iter_is_end(iter) && cmp < 0) {
@@ -177,7 +177,7 @@ void song_add_pattern(Song* song, Pattern* pattern) {
   ordered_list_insert_unique(song->patterns, pattern, pattern_cmp_name);
 }
 
-bool song_has_pattern(Song* song, char* name) {
+bool song_has_pattern(Song* song, const char* name) {
   int cmp = -1;
   BidirectionalIterator* iter = list_iterator(song->patterns);
   while (!iter_is_end(iter) && cmp < 0) {
@@ -196,6 +196,18 @@ BidirectionalIterator* song_patterns(Song* song) {
 void song_add_instrument(Song* song, Instrument* instrument) {
   ordered_list_insert_unique(
     song->instruments, instrument, instrument_cmp_name);
+}
+
+bool song_has_instrument(Song* song, const char* name) {
+  int cmp = -1;
+  BidirectionalIterator* iter = list_iterator(song->instruments);
+  while (!iter_is_end(iter) && cmp < 0) {
+    Instrument* instrument = (Instrument*)iter_get(iter);
+    cmp = strcmp(instrument->identifier, name);
+    iter_next(iter);
+  }
+  iter_destroy(iter);
+  return cmp == 0;
 }
 
 BidirectionalIterator* song_instruments(Song* song) {

@@ -4,6 +4,8 @@
 #include "pattern_screen.h"
 #include "widgets.h"
 #include "sbuffer.h"
+#include "tracker_field.h"
+#include "pattern_field.h"
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
 #define max(a, b) ((a) > (b) ? (a) : (b))
@@ -12,21 +14,6 @@ static const int PHRASE_COL_POS[5] = {4, 11, 18, 25, 32};
 
 static ScreenPos phrase_screen_current_pos(PhraseScreen* screen) {
   return (ScreenPos){screen->row + 4, PHRASE_COL_POS[screen->col]};
-}
-
-static Pattern* phrase_screen_get_pattern(PhraseScreen* screen) {
-  return screen->phrase->patterns[screen->row];
-}
-
-static void phrase_screen_set_pattern(PhraseScreen* screen, Pattern* pattern) {
-  phrase_set_pattern(screen->phrase, pattern, screen->row);
-
-  // notify song about phrase update
-  song_phrase_edited(screen->song, screen->phrase);
-
-  // last phrase is always updated, but shouldn't be NULL
-  if (pattern != NULL)
-    screen->lastPattern = pattern;
 }
 
 void render_phrase_screen(PhraseScreen* screen) {
@@ -51,95 +38,6 @@ void render_phrase_screen(PhraseScreen* screen) {
   }
   move_screen_pos(phrase_screen_current_pos(screen));
   refresh();
-}
-
-static void new_pattern_command(PhraseScreen* screen) {
-  char patternName[7] = "";
-  bool hasName;
-  bool editing = true;
-  status_message("Enter a new pattern name");
-  while (editing) {
-    hasName = slug_edit_widget(phrase_screen_current_pos(screen), patternName, 6);
-    if (hasName) {
-      if (song_has_pattern(screen->song, patternName))
-        status_message("Pattern name already exists");
-      else {
-        editing = false;
-      }
-    }
-    else
-      editing = false;
-  }
-  if (hasName) {
-    Pattern* newPattern = pattern_create(patternName);
-    song_add_pattern(screen->song, newPattern);
-    phrase_screen_set_pattern(screen, newPattern);
-    status_message("Created a new pattern");
-  }
-}
-
-static void choose_pattern_command(PhraseScreen* screen) {
-  BidirectionalIterator* iter = song_patterns(screen->song);
-  //only if there is any phrase
-  if (!iter_is_end(iter)) {
-    // navigate to current phrase or last used phrase
-    if (phrase_screen_get_pattern(screen) != NULL)
-      iter_find_forward(iter, phrase_screen_get_pattern(screen));
-    else if (screen->lastPattern != NULL)
-      iter_find_forward(iter, screen->lastPattern);
-    // TODO: preserve lastPattern between phrases
-    // display widget
-    void* choice = list_choice_widget(iter, pattern_repr);
-    // update song
-    if (choice != NULL) {
-      phrase_screen_set_pattern(screen, (Pattern*)choice);
-    }
-  }
-  iter_destroy(iter);
-}
-
-static void last_pattern_command(PhraseScreen* screen) {
-  if (screen->lastPattern)
-    phrase_screen_set_pattern(screen, screen->lastPattern);
-}
-
-static void clear_pattern_command(PhraseScreen* screen) {
-  phrase_screen_set_pattern(screen, NULL);
-}
-
-static void edit_pattern_command(PhraseScreen* screen) {
-  Pattern* pattern = phrase_screen_get_pattern(screen);
-  if (pattern != NULL) {
-    PatternScreen patternScreen = {
-      false, screen->song, pattern, 0, 0, song_first_instrument(screen->song), screen->tracker
-    };
-    pattern_screen(&patternScreen);
-  }
-  else
-    status_message("No pattern to edit here.");
-}
-
-static char position_commands(PhraseScreen* screen, int ch) {
-  switch (ch) {
-    case 'n':
-      new_pattern_command(screen);
-      break;
-    case '\n':
-      choose_pattern_command(screen);
-      break;
-    case ' ':
-      last_pattern_command(screen);
-      break;
-    case '.':
-      clear_pattern_command(screen);
-      break;
-    case 'e':
-      edit_pattern_command(screen);
-      break;
-    default:
-      return false;
-  }
-  return true;
 }
 
 static void command_toggle_play_this(PhraseScreen* screen) {
@@ -184,9 +82,10 @@ void phrase_screen(PhraseScreen* screen) {
     // process a command before redrawing
     while (noCommand) {
       ch = getch();
-      noCommand = !position_commands(screen, ch);
-      if (noCommand)
-        noCommand = !general_commands(screen, ch);
+      TrackerField* field = pattern_field_create(screen);
+      noCommand = !tracker_field_commands(field, ch);
+      tracker_field_destroy(field);
+      noCommand = noCommand && !general_commands(screen, ch);
     }
   }
 }

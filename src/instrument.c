@@ -1,16 +1,17 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "instrument.h"
 #include "list.h"
 
 LinkedList* INSTRUMENTS;
 
-Instrument* instrument_create_default(void) {
+Instrument* instrument_create(const char* name) {
   Instrument* ret = malloc(sizeof(Instrument));
   Parameters1Osc* params = malloc(sizeof(Parameters1Osc));
   
-  strcpy(ret->identifier, "DEFLT");
+  snprintf(ret->identifier, 7, "%s", name);
   ret->description[0] = '\0';
   ret->type = INSTRUMENT_1OSC;
   ret->parameters = params;
@@ -24,6 +25,10 @@ Instrument* instrument_create_default(void) {
     800,
   };
   return ret;
+}
+
+Instrument* instrument_create_default(void) {
+  return instrument_create("DEFLT");
 }
 
 void instrument_destroy(Instrument* instrument) {

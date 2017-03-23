@@ -10,28 +10,17 @@
 #include "sequencer.h"
 #include "sbuffer.h"
 #include "phrase_screen.h"
+#include "tracker_field.h"
+#include "phrase_field.h"
+
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
 #define max(a, b) ((a) > (b) ? (a) : (b))
 
-#define MAX_PAT_ROW 18
-#define MAX_PAT_COL 3
 static const int SONG_COL_POS[5] = {4, 11, 18, 25, 32};
 
 static ScreenPos song_screen_current_pos(SongScreen* screen) {
   return (ScreenPos){screen->row + 4, SONG_COL_POS[screen->col]};
-}
-
-static Phrase* song_screen_get_phrase(SongScreen* screen) {
-  return screen->song->tracks[screen->col][screen->row].phrase;
-}
-
-static void song_screen_set_phrase(SongScreen* screen, Phrase* phrase) {
-  song_set_phrase(screen->song, phrase, screen->col, screen->row);
-
-  // last phrase is always updated, but shouldn't be NULL
-  if (phrase != NULL)
-    screen->lastPhrase = phrase;
 }
 
 static void render_song_screen(SongScreen* screen) {
@@ -71,99 +60,6 @@ static void render_song_screen(SongScreen* screen) {
   }
   move_screen_pos(song_screen_current_pos(screen));
   refresh();
-}
-
-static void new_phrase_command(SongScreen* screen) {
-  char phraseName[7] = "";
-  Phrase* newPhrase;
-  bool hasName;
-  bool editing = true;
-  status_message("Enter a new phrase name");
-  while (editing) {
-    hasName = slug_edit_widget(song_screen_current_pos(screen), phraseName, 6);
-    if (hasName) {
-      if (song_has_phrase(screen->song, phraseName))
-        status_message("Phrase name already exists");
-      else {
-        editing = false;
-      }
-    }
-    else
-      editing = false;
-  }
-  if (hasName) {
-    newPhrase = phrase_create(phraseName);
-    song_add_phrase(screen->song, newPhrase);
-    song_screen_set_phrase(screen, newPhrase);
-    status_message("Created a new phrase");
-  }
-}
-
-static void choose_phrase_command(SongScreen* screen) {
-  BidirectionalIterator* iter = song_phrases(screen->song);
-  //only if there is any phrase
-  if (!iter_is_end(iter)) {
-    // navigate to current phrase or last used phrase
-    if (song_screen_get_phrase(screen) != NULL)
-      iter_find_forward(iter, song_screen_get_phrase(screen));
-    else 
-      iter_find_forward(iter, screen->lastPhrase);
-    // run widget
-    void* choice = list_choice_widget(iter, phrase_repr);
-    // update song
-    if (choice != NULL) {
-      song_screen_set_phrase(screen, (Phrase*)choice);
-    }
-  }
-  iter_destroy(iter);
-}
-
-static void last_phrase_command(SongScreen* screen) {
-  if (screen->lastPhrase)
-    song_screen_set_phrase(screen, screen->lastPhrase);
-}
-
-static void clear_phrase_command(SongScreen* screen) {
-  song_screen_set_phrase(screen, NULL);
-}
-
-static void edit_phrase_command(SongScreen* screen) {
-  Phrase* phrase = song_screen_get_phrase(screen);
-  if (phrase != NULL) {
-    PhraseScreen phraseScreen = {
-      false,
-      screen->song, song_screen_get_phrase(screen),
-      0, 0,
-      NULL,
-      screen->tracker
-    };
-    phrase_screen(&phraseScreen);
-  }
-  else
-    status_message("No phrase to edit here.");
-}
-
-static char position_commands(SongScreen* screen, int ch) {
-  switch (ch) {
-    case 'n':
-      new_phrase_command(screen);
-      break;
-    case '\n':
-      choose_phrase_command(screen);
-      break;
-    case ' ':
-      last_phrase_command(screen);
-      break;
-    case '.':
-      clear_phrase_command(screen);
-      break;
-    case 'e':
-      edit_phrase_command(screen);
-      break;
-    default:
-      return false;
-  }
-  return true;
 }
 
 static void command_toggle_play_this(SongScreen* screen) {
@@ -208,9 +104,10 @@ void song_screen(SongScreen* screen) {
     // process a command before redrawing
     while (noCommand) {
       ch = getch();
-      noCommand = !position_commands(screen, ch);
-      if (noCommand)
-        noCommand = !general_commands(screen, ch);
+      TrackerField* field = phrase_field_create(screen);
+      noCommand = !tracker_field_commands(field, ch);
+      tracker_field_destroy(field);
+      noCommand = noCommand && !general_commands(screen, ch);
     }
   }
 }

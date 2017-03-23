@@ -19,6 +19,7 @@ typedef struct {
 } Instrument;
 
 
+Instrument* instrument_create(const char* name);
 Instrument* instrument_create_default(void);
 void instrument_destroy(Instrument* instrument);
 int instrument_cmp_name(void* v1, void* v2);

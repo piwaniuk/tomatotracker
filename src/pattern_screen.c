@@ -8,6 +8,7 @@
 #include "audio_event.h"
 #include "audio_output.h"
 #include "sequencer.h"
+#include "instrument_field.h"
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
 #define max(a, b) ((a) > (b) ? (a) : (b))
@@ -117,24 +118,12 @@ char general_commands(PatternScreen* screen, int ch) {
       command_toggle_play_this(screen);
       break;
     case 'Q':
-      screen->finished = TRUE;
+      screen->finished = true;
       break;
     default:
-      return FALSE;
+      return false;
   }
-  return TRUE;
-}
-
-void choose_instrument(PatternScreen* screen) {
-  
-  BidirectionalIterator* iter = song_instruments(screen->song);
-  iter_find_forward(iter, screen->pattern->steps[screen->row].inst);
-  void* choice = list_choice_widget(iter, instrument_repr);
-  if (choice != NULL) {
-    screen->pattern->steps[screen->row].inst = choice;
-    screen->lastInstrument = choice;
-  }
-  iter_destroy(iter);
+  return true;
 }
 
 void pattern_screen(PatternScreen* screen) {
@@ -146,16 +135,14 @@ void pattern_screen(PatternScreen* screen) {
       ch = getch();
       noCommand = FALSE;
       if (screen->col == 0) {
-        if (note_column_commands(screen, ch)) {
-          continue;
-        }
+        noCommand = !note_column_commands(screen, ch);
       }
       else if (screen->col == 1) {
-        if (ch == '\n') {
-          choose_instrument(screen);
-        }
+        TrackerField* field = instrument_field_create(screen);
+        noCommand = !tracker_field_commands(field, ch);
+        tracker_field_destroy(field);
       }
-      noCommand = general_commands(screen, ch);
+      noCommand = noCommand && !general_commands(screen, ch);
     }
   }
 }

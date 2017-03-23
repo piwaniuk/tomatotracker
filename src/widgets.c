@@ -13,10 +13,17 @@ void print_header() {
   printw("stopped\n");
 }
 
-void status_message(char* message) {
+void status_message(const char* message) {
   move(23, 0);
   insertln();
   printw(message);
+}
+
+
+ScreenPos get_screen_pos() {
+  ScreenPos ret;
+  getyx(stdscr, ret.y, ret.x);
+  return ret;
 }
 
 void move_screen_pos(ScreenPos screenPos) {

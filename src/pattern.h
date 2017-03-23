@@ -20,7 +20,7 @@ typedef struct {
 /**
  * Create a new empty pattern with given name.
  */
-Pattern* pattern_create(char* name);
+Pattern* pattern_create(const char* name);
 
 /**
  * Destroy the pattern and free all memory allocated for it.

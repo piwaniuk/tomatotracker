@@ -6,7 +6,8 @@ OBJ_DIR=obj
 EXECUTABLE=tracker
 MODULES=tracker widgets audio_output iterator list pattern_screen \
   instrument audio_event sequencer synth 1osc song \
-  audio_event_interface song_screen phrase_screen pattern
+  audio_event_interface song_screen phrase_screen pattern \
+  tracker_field instrument_field pattern_field phrase_field
 
 # Build logic
 
@@ -17,6 +18,7 @@ OBJECTS=$(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(MODULES)))
 all: $(BIN_DIR) $(TRACKER)
 
 CFLAGS=-Wall -Werror -g -std=c99
+CXXFLAGS=-Wall -Werror -g -std=c++17
 LDFLAGS=-lncurses -lSDL2 -g
 
 $(SUB_DIRS):
@@ -25,8 +27,11 @@ $(SUB_DIRS):
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $< -c $(CFLAGS) -o $@
 
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+	$(CXX) $< -c $(CXXFLAGS) -o $@
+
 $(TRACKER): $(OBJECTS)
-	$(CC) $^ $(LDFLAGS) -o $@
+	$(CXX) $^ $(LDFLAGS) -o $@
 
 clean:
 	-$(RM) $(TRACKER)

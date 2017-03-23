@@ -19,7 +19,7 @@ typedef struct{
 } Phrase;
 
 
-Phrase* phrase_create(char* name);
+Phrase* phrase_create(const char* name);
 void phrase_destroy(Phrase* phrase);
 
 /**
@@ -48,17 +48,17 @@ Song* song_create(void);
 void song_destroy(Song* song);
 
 void song_add_phrase(Song* song, Phrase* phrase);
-bool song_has_phrase(Song* song, char* name);
+bool song_has_phrase(Song* song, const char* name);
 void song_set_phrase(Song* song, Phrase* phrase, uint8_t trackN, uint16_t pos);
 void song_phrase_edited(Song* song, Phrase* phrase);
 BidirectionalIterator* song_phrases(Song* song);
 
 void song_add_pattern(Song* song, Pattern* pattern);
-bool song_has_pattern(Song* song, char* name);
+bool song_has_pattern(Song* song, const char* name);
 BidirectionalIterator* song_patterns(Song* song);
 
 void song_add_instrument(Song* song, Instrument* instrument);
-bool song_has_instrument(Song* song, char* name);
+bool song_has_instrument(Song* song, const char* name);
 BidirectionalIterator* song_instruments(Song* song);
 Instrument* song_first_instrument(Song* song);
 
