@@ -36,7 +36,7 @@ void render_pattern_screen(PatternScreen* screen) {
   print_header();
   printw("Pattern P01:\n");
   printw("    n   instr  cmd1 cmd2\n");
-  for(int i = 0; i < screen->pattern->length; ++i) {
+  for(int i = 0; i < screen->song->patternLength; ++i) {
     char line[40];
     char note[4];
     decode_note(screen->pattern->steps[i].n, note);
@@ -49,7 +49,7 @@ void render_pattern_screen(PatternScreen* screen) {
     sprintf(line, "%.3d%c%s %-6s .... ....\n", i + 1, mark, note, instrument);
     printw(line);
   }
-  for(int i = screen->pattern->length; i < 19; ++i)
+  for(int i = screen->song->patternLength; i < 19; ++i)
     printw("\n");
   if ((screen->col == 0 || screen->col == 1) && screen->pattern->steps[screen->row].inst) {
     printw("%s\n", screen->pattern->steps[screen->row].inst->description);
@@ -103,7 +103,7 @@ static void command_toggle_play_this(PatternScreen* screen) {
 char general_commands(PatternScreen* screen, int ch) {
   switch (ch) {
     case KEY_DOWN:
-      screen->row = min(screen->pattern->length - 1, screen->row + 1);
+      screen->row = min(screen->song->patternLength - 1, screen->row + 1);
       break;
     case KEY_UP:
       screen->row = max(0, screen->row - 1);

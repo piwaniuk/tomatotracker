@@ -69,6 +69,8 @@ void SongHeader::toBuffer(unsigned char* buffer) const {
 void SongHeader::toSong(Song* song) const {
   strcpy(song->title, title);
   song->tempo = bpm;
+  song->tpb = tpb;
+  song->patternLength = patternSize;
   song->instruments = list_create();
   song->patterns = list_create();
   song->phrases = list_create();

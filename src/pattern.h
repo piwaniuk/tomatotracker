@@ -13,7 +13,6 @@ typedef struct {
 typedef struct {
   char identifier[7];
   char description[32];
-  uint8_t length;
   PatternStep steps[20];
 } Pattern;
 

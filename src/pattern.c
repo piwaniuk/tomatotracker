@@ -7,7 +7,6 @@ Pattern* pattern_create(const char* name) {
   Pattern* ret = malloc(sizeof(Pattern));
   snprintf(ret->identifier, 7, "%s", name);
   ret->description[0] = '\0';
-  ret->length = 16;
   for(int i = 0; i < 20; ++i)
     ret->steps[i] = (PatternStep){0, NULL, 0, 0};
   return ret;

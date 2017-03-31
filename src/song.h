@@ -35,7 +35,9 @@ typedef struct {
 
 typedef struct {
   char title[40];
-  int tempo;
+  uint8_t tempo;
+  uint8_t tpb;
+  uint8_t patternLength;
   LinkedList* instruments;
   LinkedList* phrases;
   LinkedList* patterns;

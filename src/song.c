@@ -7,6 +7,9 @@
 
 #define DEFAULT_SONG_TITLE "New Song"
 #define DEFAULT_TEMPO 120
+#define DEFAULT_TPB 4
+#define DEFAULT_PATTERN_LENGTH 16
+
 
 Phrase* phrase_create(const char* name) {
   Phrase* phrase = malloc(sizeof(Phrase));
@@ -55,6 +58,8 @@ Song* song_create(void) {
   Song* song = malloc(sizeof(Song));
   strcpy(song->title, DEFAULT_SONG_TITLE);
   song->tempo = DEFAULT_TEMPO;
+  song->tpb = DEFAULT_TPB;
+  song->patternLength = DEFAULT_PATTERN_LENGTH;
   song->instruments = list_create();
   song_add_instrument(song, instrument_create_default());
   song->phrases = list_create();
