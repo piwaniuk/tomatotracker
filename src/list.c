@@ -103,3 +103,12 @@ void list_destroy(LinkedList* list) {
   free(list);
 }
 
+size_t list_length(LinkedList* list) {
+  BidirectionalIterator* iter = list_iterator(list);
+  size_t ret = 0;
+  while (!iter_is_end(iter)) {
+    iter_next(iter);
+    ++ret;
+  }
+  return ret;
+}

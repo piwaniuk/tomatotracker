@@ -13,7 +13,7 @@ Instrument* instrument_create(const char* name) {
   
   snprintf(ret->identifier, 7, "%s", name);
   ret->description[0] = '\0';
-  ret->type = INSTRUMENT_1OSC;
+  ret->type = INSTRUMENT_TYPE_1OSC;
   ret->parameters = params;
   
   *params = (Parameters1Osc){

@@ -117,7 +117,7 @@ char general_commands(PatternScreen* screen, int ch) {
     case 'p':
       command_toggle_play_this(screen);
       break;
-    case 'Q':
+    case 'q':
       screen->finished = true;
       break;
     default:

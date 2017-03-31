@@ -7,7 +7,8 @@ EXECUTABLE=tracker
 MODULES=tracker widgets audio_output iterator list pattern_screen \
   instrument audio_event sequencer synth 1osc song \
   audio_event_interface song_screen phrase_screen pattern \
-  tracker_field instrument_field pattern_field phrase_field
+  tracker_field instrument_field pattern_field phrase_field song_io \
+  song_writer song_reader
 
 # Build logic
 

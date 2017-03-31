@@ -221,3 +221,15 @@ Instrument* song_first_instrument(Song* song) {
   iter_destroy(iter);
   return ret; 
 }
+
+uint32_t song_instrument_count(const Song* song) {
+  return list_length(song->instruments);
+}
+
+uint32_t song_pattern_count(const Song* song) {
+  return list_length(song->patterns);
+}
+
+uint32_t song_phrase_count(const Song* song) {
+  return list_length(song->phrases);
+}

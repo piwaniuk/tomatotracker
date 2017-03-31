@@ -9,12 +9,12 @@
 
 extern LinkedList* INSTRUMENTS;
 
-typedef enum {INSTRUMENT_1OSC} InstrType;
+enum {INSTRUMENT_TYPE_1OSC = 1};
 
 typedef struct {
   char identifier[7];
   char description[32];
-  InstrType type;
+  uint16_t type;
   void* parameters;
 } Instrument;
 

@@ -64,7 +64,7 @@ static char general_commands(PhraseScreen* screen, int ch) {
     case 'p':
       command_toggle_play_this(screen);
       break;
-    case 'Q':
+    case 'q':
       screen->finished = true;
       break;
     default:

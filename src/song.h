@@ -62,4 +62,8 @@ bool song_has_instrument(Song* song, const char* name);
 BidirectionalIterator* song_instruments(Song* song);
 Instrument* song_first_instrument(Song* song);
 
+uint32_t song_instrument_count(const Song* song);
+uint32_t song_pattern_count(const Song* song);
+uint32_t song_phrase_count(const Song* song);
+
 #endif

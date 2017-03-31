@@ -86,9 +86,29 @@ static char general_commands(SongScreen* screen, int ch) {
     case 'p':
       command_toggle_play_this(screen);
       break;
+    default:
+      return false;
+  }
+  return true;
+}
+
+void command_quit(SongScreen* screen) {
+  //if (widget_confirm("Type 'yes' to confirm quit: "))
+  screen->finished = true;
+}
+
+void command_save_song(SongScreen* screen) {
+  if (tracker_save_song(screen->tracker, screen->song))
+    status_message("Song has been saved");
+}
+
+static bool song_commands(SongScreen* screen, int ch) {
+  switch (ch) {
     case 'Q':
-      screen->finished = true;
+      command_quit(screen);
       break;
+    case 'S':
+      command_save_song(screen);
     default:
       return false;
   }
@@ -108,6 +128,7 @@ void song_screen(SongScreen* screen) {
       noCommand = !tracker_field_commands(field, ch);
       tracker_field_destroy(field);
       noCommand = noCommand && !general_commands(screen, ch);
+      noCommand = noCommand && !song_commands(screen, ch);
     }
   }
 }
