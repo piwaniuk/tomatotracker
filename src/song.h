@@ -68,4 +68,6 @@ uint32_t song_instrument_count(const Song* song);
 uint32_t song_pattern_count(const Song* song);
 uint32_t song_phrase_count(const Song* song);
 
+void song_update_length(Song* song);
+
 #endif

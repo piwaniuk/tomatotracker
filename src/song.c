@@ -123,7 +123,7 @@ static uint16_t song_track_length(Song* song, uint8_t trackN) {
     return pos + phrase->length;
 }
 
-static void song_update_length(Song* song) {
+void song_update_length(Song* song) {
   song->length = 1;
   for(int i = 0; i < TRACK_COUNT; ++i) {
     if (song_track_length(song, i) > song->length)

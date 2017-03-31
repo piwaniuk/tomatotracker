@@ -156,18 +156,17 @@ static Phrase* takeTrackEntry(uint8_t* buffer, songRevMap<Phrase> phraseMap) {
   return phraseMap.at(fromBuffer<uint32_t>(buffer));
 }
 
-static void rebuildTail(TrackEntry* track, uint16_t lastPos) {
+static void rebuildTail(TrackEntry* track, uint16_t lastPos) {;
   Phrase* lastPhrase = track[lastPos].phrase;
   uint16_t lastTailPos;
-
-  if (lastPhrase != nullptr)
-    lastTailPos = lastPos + lastPhrase->length - 1;
+  if (lastPhrase == nullptr)
+    lastTailPos =  1;
   else
-    lastTailPos = lastPos;
+    lastTailPos = lastPos + lastPhrase->length;
 
   track[0].tail = 0;
   for(uint16_t i = 1; i < lastTailPos; ++i)
-    if (track[i].phrase != nullptr)
+    if (track[i].phrase == nullptr)
       track[i].tail = track[i - 1].tail + 1;
     else
       track[i].tail = 0;
@@ -195,6 +194,7 @@ static void loadTracks(
     songRevMap<Phrase> phraseMap) {
   for(uint8_t i = 0; i < count; ++i)
     loadTrack(file, song, i, phraseMap);
+  song_update_length(song);
 }
 
 Song* SongReader::loadSong() {
