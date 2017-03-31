@@ -59,11 +59,6 @@ void render_pattern_screen(PatternScreen* screen) {
   }
   for(int i = screen->song->patternLength; i < 19; ++i)
     printw("\n");
-  if ((screen->col == 0 || screen->col == 1) && screen->pattern->steps[screen->row].inst) {
-    printw("%s\n", screen->pattern->steps[screen->row].inst->description);
-  }
-  else 
-    printw("...");
   move(screen->row + 4, PAT_COL_POS[screen->col]);
   refresh();
 }
