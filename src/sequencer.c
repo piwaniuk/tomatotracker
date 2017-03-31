@@ -139,6 +139,10 @@ bool seq_is_playing(Sequencer* seq) {
   return seq->isPlaying;
 }
 
+uint8_t seq_play_mode(Sequencer* seq) {
+  return (uint8_t)seq->mode;
+}
+
 bool seq_pattern_mark(Sequencer* seq, Pattern* pattern, size_t pos) {
   if (seq->isPlaying && seq->tick == pos) {
     Pattern** patterns = seq_feed_create(seq);

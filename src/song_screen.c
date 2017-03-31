@@ -23,9 +23,17 @@ static ScreenPos song_screen_current_pos(SongScreen* screen) {
   return (ScreenPos){screen->row + 4, SONG_COL_POS[screen->col]};
 }
 
+static HeaderFields make_header_fields(SongScreen* screen) {
+  return (HeaderFields){
+    screen->song->title,
+    seq_is_playing(&screen->tracker->sequencer),
+    seq_play_mode(&screen->tracker->sequencer)
+  };
+}
+
 static void render_song_screen(SongScreen* screen) {
   move(0, 0);
-  print_header();
+  print_header(make_header_fields(screen));
   printw("Tracks:\n");
   printw("    track1 track2 track3 track4 track5\n");
   for(int i = 0; i < 19; ++i) {

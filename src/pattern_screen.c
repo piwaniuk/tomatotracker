@@ -31,9 +31,17 @@ void decode_note(uint8_t n, char note[4]) {
   }
 }
 
+static HeaderFields make_header_fields(PatternScreen* screen) {
+  return (HeaderFields){
+    screen->song->title,
+    seq_is_playing(&screen->tracker->sequencer),
+    seq_play_mode(&screen->tracker->sequencer)
+  };
+}
+
 void render_pattern_screen(PatternScreen* screen) {
   move(0, 0);
-  print_header();
+  print_header(make_header_fields(screen));
   printw("Pattern P01:\n");
   printw("    n   instr  cmd1 cmd2\n");
   for(int i = 0; i < screen->song->patternLength; ++i) {

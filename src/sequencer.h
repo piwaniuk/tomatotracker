@@ -38,6 +38,7 @@ void seq_play_song(Sequencer* seq, Song* song, size_t pos);
 bool seq_pattern_mark(Sequencer* seq, Pattern* pattern, size_t pos);
 
 bool seq_is_playing(Sequencer* seq);
+uint8_t seq_play_mode(Sequencer* seq);
 void seq_stop(Sequencer* seq);
 
 #endif

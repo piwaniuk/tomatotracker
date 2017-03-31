@@ -1,6 +1,8 @@
 #ifndef WIDGETS_H
 #define WIDGETS_H
 
+#include <stdint.h>
+
 #include "stdlib.h"
 #include "iterator.h"
 
@@ -8,7 +10,13 @@ typedef struct {
   int y, x;
 } ScreenPos;
 
-void print_header();
+typedef struct {
+  char* title;
+  bool isPlaying;
+  uint8_t playMode;
+} HeaderFields;
+
+void print_header(const HeaderFields fields);
 void status_message(const char*);
 
 ScreenPos get_screen_pos();

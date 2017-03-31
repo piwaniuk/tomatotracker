@@ -8,9 +8,26 @@
 #include "widgets.h"
 #include "iterator.h"
 
-void print_header() {
-  printw("Song Title\n");
-  printw("stopped\n");
+void print_header(const HeaderFields fields) {
+  char* playModeString;
+  char* isPlayingString;
+
+  if (!fields.isPlaying)
+    playModeString = "";
+  else if (fields.playMode == 0)
+    playModeString = "song";
+  else if (fields.playMode == 1)
+    playModeString = "phrase";
+  else
+    playModeString = "pattern";
+
+  if (fields.isPlaying)
+    isPlayingString = "playing";
+  else
+    isPlayingString = "stopped";
+
+  printw("song: %s\n", fields.title);
+  printw("seq: %s %s\n", isPlayingString, playModeString);
 }
 
 void status_message(const char* message) {

@@ -16,9 +16,17 @@ static ScreenPos phrase_screen_current_pos(PhraseScreen* screen) {
   return (ScreenPos){screen->row + 4, PHRASE_COL_POS[screen->col]};
 }
 
+static HeaderFields make_header_fields(PhraseScreen* screen) {
+  return (HeaderFields){
+    screen->song->title,
+    seq_is_playing(&screen->tracker->sequencer),
+    seq_play_mode(&screen->tracker->sequencer)
+  };
+}
+
 void render_phrase_screen(PhraseScreen* screen) {
   move(0, 0);
-  print_header();
+  print_header(make_header_fields(screen));
   printw("Phrase:\n");
   printw("    patt.\n");
   for(int i = 0; i < 19; ++i) {
