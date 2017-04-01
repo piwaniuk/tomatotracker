@@ -13,6 +13,7 @@ typedef struct {
   Pattern* pattern;
   int row;
   int col;
+  int octave;
   Instrument* lastInstrument;
   Tracker* tracker;
 } PatternScreen;

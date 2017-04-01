@@ -45,7 +45,7 @@ struct PatternField final : public TrackerField {
     Pattern* pattern = reinterpret_cast<Pattern*>(getValue());
     if (pattern != NULL) {
       PatternScreen patternScreen = {
-        false, screen->song, pattern, 0, 0, song_first_instrument(screen->song), screen->tracker
+        false, screen->song, pattern, 0, 0, 4, song_first_instrument(screen->song), screen->tracker
       };
       pattern_screen(&patternScreen);
     }

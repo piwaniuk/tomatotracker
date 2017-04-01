@@ -85,7 +85,7 @@ char note_column_commands(PatternScreen* screen, int ch) {
     return TRUE;
   }
   else if ((pianoKey = char_to_piano(ch)) != -1) {
-    uint8_t note = 64 + pianoKey;
+    uint8_t note = (screen->octave * 16) + pianoKey;
     screen->pattern->steps[screen->row].n = note;
     if (screen->pattern->steps[screen->row].inst == NULL) {
       screen->pattern->steps[screen->row].inst = screen->lastInstrument;
@@ -134,6 +134,25 @@ static char length_column_commands(PatternScreen* screen, int ch) {
   return true;
 }
 
+
+static void command_octave_down(PatternScreen* screen) {
+  if (screen->octave > 1) {
+    --screen->octave;
+    char line[40];
+    sprintf(line, "Current octave: %d", screen->octave);
+    status_message(line);
+  }
+}
+
+static void command_octave_up(PatternScreen* screen) {
+  if (screen->octave < 8) {
+    ++screen->octave;
+    char line[40];
+    sprintf(line, "Current octave: %d", screen->octave);
+    status_message(line);
+  }
+}
+
 static char general_commands(PatternScreen* screen, int ch) {
   switch (ch) {
     case KEY_DOWN:
@@ -150,6 +169,12 @@ static char general_commands(PatternScreen* screen, int ch) {
       break;
     case 'p':
       command_toggle_play_this(screen);
+      break;
+    case '[':
+      command_octave_down(screen);
+      break;
+    case ']':
+      command_octave_up(screen);
       break;
     case 'q':
       screen->finished = true;
