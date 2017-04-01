@@ -66,7 +66,7 @@ static Pattern** seq_feed_create(Sequencer* seq) {
 static void seq_next_tick(Sequencer* seq) {
   // TODO: support different pattern lengths
   seq->tick += 1;
-  if (seq->tick == 16) {
+  if (seq->tick == seq->patternLength) {
     seq->patternStep += 1;
     seq->tick = 0;
     if (seq->mode == PLAY_MODE_PHRASE) {
@@ -159,4 +159,10 @@ bool seq_pattern_mark(Sequencer* seq, Pattern* pattern, size_t pos) {
 
 void seq_stop(Sequencer* seq) {
   seq->isPlaying = false;
+}
+
+void seq_set_timing(Sequencer* seq, uint8_t bpm, uint8_t tpb, uint8_t patternLength) {
+  seq->spt = (SAMPLE_RATE * 60) / (tpb * bpm);
+  
+  seq->patternLength = patternLength;
 }

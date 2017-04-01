@@ -69,7 +69,8 @@ void initialize_ui() {
 }
 
 void initialize_audio(Tracker* tracker) {
-  tracker->sequencer = (Sequencer){NULL, 120, 6000, PLAY_MODE_PATTERN, false, 0, 0};
+  tracker->sequencer =
+    (Sequencer){NULL, 6000, 16, PLAY_MODE_PATTERN, false, 0, 0, 0};
   tracker->aoc = aoc_create(&tracker->sequencer);
   audio_output_initialize(tracker->aoc);
 }

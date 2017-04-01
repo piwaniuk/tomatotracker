@@ -138,6 +138,14 @@ static bool general_commands(SongOptionsScreen* screen, int ch) {
 void song_options_screen(SongOptionsScreen* screen) {
   int ch;
   while (!screen->finished) {
+    // stop sequencer when editing song options
+    if (seq_is_playing(&screen->tracker->sequencer))
+      seq_stop(&screen->tracker->sequencer);
+    // update sequencer settings
+    seq_set_timing(
+      &screen->tracker->sequencer,
+      screen->song->tempo, screen->song->tpb, screen->song->patternLength);
+
     char noCommand = true;
     render_instrument_screen(screen);
     while (noCommand) {

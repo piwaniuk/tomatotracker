@@ -13,9 +13,9 @@ typedef enum {PLAY_MODE_SONG, PLAY_MODE_PHRASE, PLAY_MODE_PATTERN} PlayMode;
 
 typedef struct {
   void* data;
-  
-  int bpm;
+
   int spt; // = (SR * 60) / (4 * BPM)
+  int patternLength;
   
   PlayMode mode;
   char isPlaying;
@@ -40,5 +40,7 @@ bool seq_pattern_mark(Sequencer* seq, Pattern* pattern, size_t pos);
 bool seq_is_playing(Sequencer* seq);
 uint8_t seq_play_mode(Sequencer* seq);
 void seq_stop(Sequencer* seq);
+
+void seq_set_timing(Sequencer* seq, uint8_t bpm, uint8_t tpb, uint8_t patternLength);
 
 #endif
