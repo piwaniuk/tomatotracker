@@ -36,6 +36,8 @@ static void render_instrument_screen(SongOptionsScreen* screen) {
   for(int i = 0; i < 4; ++i) {
     printw("%-8s: %s\n", labels[i], values[i]);
   }
+  for(int i = 4; i < 20; ++i)
+    printw("\n");
   move(screen->row + 3, 0);
 }
 
@@ -126,6 +128,7 @@ static bool general_commands(SongOptionsScreen* screen, int ch) {
       break;
     case 'S':
       command_save_song(screen);
+      break;
     case 'e':
       command_edit(screen);
       break;

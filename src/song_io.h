@@ -30,8 +30,10 @@ static const size_t PARAMS_1OSC_R_OFF = 7;
 // instrument field offsets
 static const size_t INS_NAME_OFF = 0;
 static const size_t INS_DESCR_OFF = 6;
-static const size_t INS_TYPE_OFF = 38;
-static const size_t INS_PARAMS_OFF = 40;
+static const size_t INS_VOLUME_OFF = 38;
+static const size_t INS_TYPE_OFF = 39;
+static const size_t INS_PARAMS_OFF = 41;
+static const size_t INS_BASE_SIZE = 41;
 
 // pattern step field offsets
 static const size_t PAT_STEP_NOTE_OFF = 0;

@@ -30,7 +30,7 @@ static void fillInstrumentParams(const Instrument* instrument, uint8_t* buffer) 
 }
 
 static void saveInstrument(std::ofstream& file, const Instrument* instrument) {
-  uint32_t baseSize = 40;
+  uint32_t baseSize = INS_BASE_SIZE;
   uint32_t paramsSize = INSTR_PARAM_SIZES.at(instrument->type);
 
   uint8_t buffer1[4];
@@ -39,6 +39,7 @@ static void saveInstrument(std::ofstream& file, const Instrument* instrument) {
   uint8_t buffer2[baseSize + paramsSize];
   fillBuffer<6>(buffer2 + INS_NAME_OFF, instrument->identifier);
   fillBuffer<32>(buffer2 + INS_DESCR_OFF, instrument->description);
+  fillBuffer(buffer2 + INS_VOLUME_OFF, instrument->volume);
   fillBuffer(buffer2 + INS_TYPE_OFF, instrument->type);
   
   fillInstrumentParams(instrument, buffer2 + INS_PARAMS_OFF);

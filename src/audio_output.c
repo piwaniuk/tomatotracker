@@ -31,26 +31,31 @@ void aoc_destroy(AudioOutputContext* aoc) {
 
 void mix_buffers(BidirectionalIterator* bi, size_t len, sample_t* out) {
   // zero the output
-  for(int j = 0; j < len; ++j) {
-    out[j] = SAMPLE_0;
-  }
+  int32_t* mix = malloc(sizeof(int32_t) * len);
+  uint16_t count = 0;
+  
+  for(int j = 0; j < len; ++j)
+    mix[j] = SAMPLE_0;
   
   // sum the inputs
   for(; !iter_is_end(bi); iter_next(bi)) {
     sample_t* in = (sample_t*)iter_get(bi);
-    for(int j = 0; j < len; ++j) {
-      out[j] += in[j] - SAMPLE_0;
-    }
+    for(int j = 0; j < len; ++j)
+      mix[j] += in[j];
+    ++count;
   }
-  
-  // TODO: clipping
-  /*for(int j = 0; j < len; ++j) {
-    if (mix < SAMPLE_MIN)
-      mix = SAMPLE_MIN;
-    else if (mix > SAMPLE_MAX)
-      mix = SAMPLE_MAX;
-    out[i] = mix;
-  }*/
+
+  for(int j = 0; j < len; ++j) {
+    mix[j] -= count * SAMPLE_0;
+    if (mix[j] < 0)
+      out[j] = 0;
+    else if (mix[j] > 65535)
+      out[j] = 65535;
+    else
+      out[j] = (sample_t)mix[j];
+  }
+
+  free(mix);
 }
 
 void audio_callback(void* userData, Uint8* s, int len) {

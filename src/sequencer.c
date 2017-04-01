@@ -9,7 +9,7 @@ AudioEvent* step_to_event(PatternStep* step, uint32_t spt) {
   int freq = note_to_freq(step->n);
   uint32_t length = step->length * spt;
   if (instr->type == INSTRUMENT_TYPE_1OSC)
-    return ae_1osc_create(freq, length, instr->parameters);
+    return ae_1osc_create(freq, length, instr->volume, instr->parameters);
   else
     return ae_freq_create(freq);
 }

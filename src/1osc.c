@@ -7,6 +7,7 @@ enum {STAGE_ATTACK, STAGE_DECAY, STAGE_SUSTAIN, STAGE_RELEASE, STAGE_OFF};
 
 typedef struct {
   Parameters1Osc* params;
+  uint8_t volume;
   uint16_t phase;
   uint16_t phaseStep;
   uint32_t time;
@@ -38,8 +39,9 @@ uint16_t gen_cmb_envelope(Parameters1Osc* params, uint32_t t, uint32_t len) {
 char ae_1osc_fill(AudioEvent* event, sample_t* buffer, size_t len) {
   State1Osc* state = (State1Osc*)event->state;
   for(int i = 0; i < len; ++i) {
-    buffer[i] = gen_cmb_envelope(state->params, state->time + i, state->length) / 4;
-    buffer[i] = buffer[i] * (gen_triangle(state->phase) - SAMPLE_0) / 65536 + SAMPLE_0;
+    buffer[i] = gen_cmb_envelope(state->params, state->time + i, state->length);
+    buffer[i] = buffer[i] * state->volume / 128;
+    buffer[i] = buffer[i] * (gen_saw(state->phase) - SAMPLE_0) / 65536 + SAMPLE_0;
     state->phase += state->phaseStep;
   }
   state->time += len;
@@ -51,9 +53,10 @@ AudioEventInterface AE_1OSC_INTERFACE = {
   ae_state_destroy
 };
 
-AudioEvent* ae_1osc_create(int freq, uint32_t length, void* parameters) {
+AudioEvent* ae_1osc_create(int freq, uint32_t length, uint8_t volume, void* parameters) {
   State1Osc* state = malloc(sizeof(State1Osc));
   state->params = (Parameters1Osc*)parameters;
+  state->volume = volume;
   state->phase = 0;
   state->phaseStep = freq * 65536 / SAMPLE_RATE;
   state->time = 0;

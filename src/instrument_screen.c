@@ -16,7 +16,7 @@ static HeaderFields make_header_fields(InstrumentScreen* screen) {
 }
 
 static ScreenPos value_screen_pos(InstrumentScreen* screen) {
-  return (ScreenPos){screen->row + 3, 8};
+  return (ScreenPos){screen->row + 3, 9};
 }
 
 static void render_instrument_screen(InstrumentScreen* screen) {
@@ -34,7 +34,7 @@ static void render_instrument_screen(InstrumentScreen* screen) {
 
 
   Parameters1Osc* params = (Parameters1Osc*)screen->instrument->parameters;
-  strcpy(values[4], "triangle");
+  strcpy(values[4], "saw");
   sprintf(values[5], "%d", params->ampAtt);
   sprintf(values[6], "%d", params->ampDec);
   sprintf(values[7], "%d", params->ampSus);
@@ -44,6 +44,8 @@ static void render_instrument_screen(InstrumentScreen* screen) {
   for(int i = 0; i < 9; ++i) {
     printw("%-8s: %s\n", labels[i], values[i]);
   }
+  for(int i = 9; i < 20; ++i)
+    printw("\n");
   move(screen->row + 3, 0);
 }
 
@@ -83,6 +85,7 @@ static bool type_1osc_row_commands(InstrumentScreen* screen, int ch) {
   switch (screen->row - 4) {
     case 0:
       //return shape
+      return false;
     case 1:
       return attack_row_commands(screen, ch);
     case 2:

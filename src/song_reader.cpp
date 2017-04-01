@@ -6,7 +6,8 @@ SongReader::SongReader(const char* filename) :
   file.open(filename, std::ios_base::binary);
 }
 
-SongReader::SongReader(std::ifstream&& file): file(std::move(file)) {
+SongReader::SongReader(std::ifstream&& file):
+  filename(""), file(std::move(file)), header(), headerLoaded() {
 }
 
 const SongHeader* SongReader::getHeader() {
@@ -51,6 +52,7 @@ static Instrument* loadInstrument(std::ifstream& file) {
   
   stringFromBuffer<6>(buffer2 + INS_NAME_OFF, instrument->identifier);
   stringFromBuffer<32>(buffer2 + INS_DESCR_OFF, instrument->description);
+  instrument->volume = fromBuffer<uint8_t>(buffer2 + INS_VOLUME_OFF);
   instrument->type = fromBuffer<uint16_t>(buffer2 + INS_TYPE_OFF);
   
   instrument->parameters =

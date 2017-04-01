@@ -81,9 +81,7 @@ int main(int argc, char** argv) {
 
   initialize_ui();
   initialize_audio(&tracker);
-  
-  //SongScreen screen = {false, song, 0, 0, NULL, &tracker};
-  //song_screen(&screen);
+
   SongOptionsScreen screen = {false, song, 0, &tracker};
   song_options_screen(&screen);
   
