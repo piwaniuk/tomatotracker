@@ -47,36 +47,6 @@ static void render_instrument_screen(InstrumentScreen* screen) {
   move(screen->row + 3, 0);
 }
 
-bool numeric_value_commands(int* value, int min, int max, int ch) {
-  switch (ch) {
-    case ',':
-      if (*value > min)
-        --*value;
-      break;
-    case '.':
-      if (*value < max)
-        ++*value;
-      break;
-    case '<':
-      *value /= 2;
-      if (*value < min)
-        *value = min;
-      else if (*value > max)
-        *value = max;
-      break;
-    case '>':
-      *value *= 2;
-      if (*value < min)
-        *value = min;
-      else if (*value > max)
-        *value = max;
-      break;
-    default:
-      return false;
-  }
-  return true;
-}
-
 static bool attack_row_commands(InstrumentScreen* screen, int ch) {
   Parameters1Osc* params = (Parameters1Osc*)screen->instrument->parameters;
   int value = (int)params->ampAtt;

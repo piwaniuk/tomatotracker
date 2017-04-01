@@ -11,7 +11,7 @@
 extern "C" {
 #include "instrument.h"
 #include "pattern.h"
-#include "song_screen.h"
+#include "song_options_screen.h"
 #include "audio_output.h"
 #include "sequencer.h"
 }
@@ -81,8 +81,10 @@ int main(int argc, char** argv) {
   initialize_ui();
   initialize_audio(&tracker);
   
-  SongScreen screen = {false, song, 0, 0, NULL, &tracker};
-  song_screen(&screen);
+  //SongScreen screen = {false, song, 0, 0, NULL, &tracker};
+  //song_screen(&screen);
+  SongOptionsScreen screen = {false, song, 0, &tracker};
+  song_options_screen(&screen);
   
   audio_output_finalize();
   aoc_destroy(tracker.aoc);

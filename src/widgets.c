@@ -126,43 +126,39 @@ bool text_acceptable_char(int ch) {
 
 
 bool slug_edit_widget(ScreenPos screenPos, char* text, size_t len) {
-  bool finished = false;
-  bool ret;
-  size_t pos = strlen(text);
-  char* buffer = malloc(len + 1);
-  snprintf(buffer, len + 1, "%s", text);
-  move_screen_pos(screenPos);
-  for(int i = 0; i < len; ++i)
-    addch(' ');
-  move_screen_pos(screenPos);
-  printw(text);
-  while (!finished) {
-    int ch = getch();
-    if (ch == KEY_BACKSPACE && pos > 0) {
-      --pos;
-      buffer[pos] = '\0';
-      printw("\b \b");
-    }
-    else if (ch == '\n' && pos > 0) {
-      strcpy(text, buffer);
-      ret = true;
-      finished = true;
-    }
-    else if (ch == 27) {
-      ret = false;
-      finished = true;
-    }
-    else if ((ch == '_' || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9')) && pos < len) {
-      buffer[pos] = ch;
-      buffer[pos + 1] = '\0';
-      ++pos;
-      addch(ch);
-    }
-  }
-  free(buffer);
-  return ret;
+  return general_edit_widget(screenPos, text, len, slug_acceptable_char);
 }
 
 bool text_edit_widget(ScreenPos screenPos, char* text, size_t len) {
   return general_edit_widget(screenPos, text, len, text_acceptable_char);
+}
+
+bool numeric_value_commands(int* value, int min, int max, int ch) {
+  switch (ch) {
+    case ',':
+      if (*value > min)
+        --*value;
+      break;
+    case '.':
+      if (*value < max)
+        ++*value;
+      break;
+    case '<':
+      *value /= 2;
+      if (*value < min)
+        *value = min;
+      else if (*value > max)
+        *value = max;
+      break;
+    case '>':
+      *value *= 2;
+      if (*value < min)
+        *value = min;
+      else if (*value > max)
+        *value = max;
+      break;
+    default:
+      return false;
+  }
+  return true;
 }

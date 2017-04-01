@@ -28,4 +28,6 @@ void* list_choice_widget(BidirectionalIterator* iter, char* (repr)(void*));
 bool slug_edit_widget(ScreenPos screenPos, char* text, size_t len);
 bool text_edit_widget(ScreenPos screenPos, char* text, size_t len);
 
+bool numeric_value_commands(int* value, int min, int max, int ch);
+
 #endif
