@@ -106,7 +106,7 @@ static void command_toggle_play_this(PatternScreen* screen) {
     seq_play_pattern(&screen->tracker->sequencer, screen->pattern, screen->row);
 }
 
-char length_column_commands(PatternScreen* screen, int ch) {
+static char length_column_commands(PatternScreen* screen, int ch) {
   // no editing length in empty steps
   if (screen->pattern->steps[screen->row].n == 0)
     return false;
@@ -134,7 +134,7 @@ char length_column_commands(PatternScreen* screen, int ch) {
   return true;
 }
 
-char general_commands(PatternScreen* screen, int ch) {
+static char general_commands(PatternScreen* screen, int ch) {
   switch (ch) {
     case KEY_DOWN:
       screen->row = min(screen->song->patternLength - 1, screen->row + 1);

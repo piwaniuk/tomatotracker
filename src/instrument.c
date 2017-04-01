@@ -13,6 +13,7 @@ Instrument* instrument_create(const char* name) {
   
   snprintf(ret->identifier, 7, "%s", name);
   ret->description[0] = '\0';
+  ret->volume = 64;
   ret->type = INSTRUMENT_TYPE_1OSC;
   ret->parameters = params;
   
@@ -28,7 +29,7 @@ Instrument* instrument_create(const char* name) {
 }
 
 Instrument* instrument_create_default(void) {
-  return instrument_create("DEFLT");
+  return instrument_create("deflt");
 }
 
 void instrument_destroy(Instrument* instrument) {

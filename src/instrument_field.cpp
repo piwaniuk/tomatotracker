@@ -1,6 +1,13 @@
 #include "instrument_field.h"
 #include "tracker_field_interface.h"
 
+extern "C" {
+
+#include "instrument_screen.h"
+#include "widgets.h"
+
+}
+
 /**
  * Implementation of tracker field with instrument values
  */
@@ -38,6 +45,15 @@ struct InstrumentField final : public TrackerField {
 
   virtual void editor() {
     // TODO: instrument screen
+    Instrument* instrument = reinterpret_cast<Instrument*>(getValue());
+    if (instrument != NULL) {
+      InstrumentScreen instrumentScreen = {
+        false, screen->song, instrument, 0, screen->tracker
+      };
+      instrument_screen(&instrumentScreen);
+    }
+    else
+      status_message("No instrument to edit here.");
   }
 
   virtual void* createNew(const char* name) {

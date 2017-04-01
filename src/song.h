@@ -70,4 +70,6 @@ uint32_t song_phrase_count(const Song* song);
 
 void song_update_length(Song* song);
 
+void song_rename_instrument(Song* song, Instrument* instrument, const char* newName);
+
 #endif

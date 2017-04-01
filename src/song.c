@@ -238,3 +238,11 @@ uint32_t song_pattern_count(const Song* song) {
 uint32_t song_phrase_count(const Song* song) {
   return list_length(song->phrases);
 }
+
+void song_rename_instrument(Song* song, Instrument* instrument, const char* newName) {
+  BidirectionalIterator* iter = song_instruments(song);
+  iter_find_forward(iter, instrument);
+  iter_remove(iter);
+  strcpy(instrument->identifier, newName);
+  song_add_instrument(song, instrument);
+}
