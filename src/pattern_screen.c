@@ -14,8 +14,8 @@
 #define max(a, b) ((a) > (b) ? (a) : (b))
 
 #define MAX_PAT_ROW 18
-#define MAX_PAT_COL 3
-const int PAT_COL_POS[4] = {4, 8, 15, 20};
+#define MAX_PAT_COL 2
+const int PAT_COL_POS[4] = {4, 8, 15};
 
 char NOTE_NAMES[12][3] = {
   "C-", "C#", "D-", "D#", "E-", "F-", "F#", "G-", "G#", "A-", "A#", "B-"
@@ -43,7 +43,7 @@ void render_pattern_screen(PatternScreen* screen) {
   move(0, 0);
   print_header(make_header_fields(screen));
   printw("Pattern P01:\n");
-  printw("    n   instr  cmd1 cmd2\n");
+  printw("    n   instr  len\n");
   for(int i = 0; i < screen->song->patternLength; ++i) {
     char line[40];
     char note[4];
@@ -54,7 +54,8 @@ void render_pattern_screen(PatternScreen* screen) {
     char mark = ' ';
     if (seq_pattern_mark(&screen->tracker->sequencer, screen->pattern, i))
       mark = '>';
-    sprintf(line, "%.3d%c%s %-6s .... ....\n", i + 1, mark, note, instrument);
+    int length = screen->pattern->steps[i].length;
+    sprintf(line, "%.3d%c%s %-6s %.3d\n", i + 1, mark, note, instrument, length);
     printw(line);
   }
   for(int i = screen->song->patternLength; i < 19; ++i)
@@ -80,15 +81,17 @@ int char_to_piano(int ch) {
 char note_column_commands(PatternScreen* screen, int ch) {
   int pianoKey;
   if (ch == '.') {
-    screen->pattern->steps[screen->row] = (PatternStep){0, NULL, 0, 0};
+    screen->pattern->steps[screen->row] = (PatternStep){0, 0, NULL, 0, 0};
     return TRUE;
   }
   else if ((pianoKey = char_to_piano(ch)) != -1) {
     uint8_t note = 64 + pianoKey;
     screen->pattern->steps[screen->row].n = note;
-    if (screen->pattern->steps[screen->row].inst == NULL)
+    if (screen->pattern->steps[screen->row].inst == NULL) {
       screen->pattern->steps[screen->row].inst = screen->lastInstrument;
-    aoc_add_event(screen->tracker->aoc, step_to_event(&screen->pattern->steps[screen->row]));
+      screen->pattern->steps[screen->row].length = 1;
+    }
+    aoc_add_event(screen->tracker->aoc, step_to_event(&screen->pattern->steps[screen->row], 1500));
     return TRUE;
   }
   else {
@@ -101,6 +104,34 @@ static void command_toggle_play_this(PatternScreen* screen) {
     seq_stop(&screen->tracker->sequencer);
   else
     seq_play_pattern(&screen->tracker->sequencer, screen->pattern, screen->row);
+}
+
+char length_column_commands(PatternScreen* screen, int ch) {
+  // no editing length in empty steps
+  if (screen->pattern->steps[screen->row].n == 0)
+    return false;
+  switch (ch) {
+    case ',':
+      if (screen->pattern->steps[screen->row].length > 0)
+        --screen->pattern->steps[screen->row].length;
+      break;
+    case '.':
+      if (screen->pattern->steps[screen->row].length < 128)
+        ++screen->pattern->steps[screen->row].length;
+      break;
+    case '<':
+        screen->pattern->steps[screen->row].length /= 2;
+      break;
+    case '>':
+      if (screen->pattern->steps[screen->row].length < 64)
+        screen->pattern->steps[screen->row].length *= 2;
+      else
+        screen->pattern->steps[screen->row].length = 128;
+      break;
+    default:
+      return false;
+  }
+  return true;
 }
 
 char general_commands(PatternScreen* screen, int ch) {
@@ -132,11 +163,10 @@ char general_commands(PatternScreen* screen, int ch) {
 void pattern_screen(PatternScreen* screen) {
   int ch;
   while (!screen->finished) {
-    char noCommand = TRUE;
+    char noCommand = true;
     render_pattern_screen(screen);
     while (noCommand) {
       ch = getch();
-      noCommand = FALSE;
       if (screen->col == 0) {
         noCommand = !note_column_commands(screen, ch);
       }
@@ -144,6 +174,9 @@ void pattern_screen(PatternScreen* screen) {
         TrackerField* field = instrument_field_create(screen);
         noCommand = !tracker_field_commands(field, ch);
         tracker_field_destroy(field);
+      }
+      else if (screen->col == 2) {
+        noCommand = !length_column_commands(screen, ch);
       }
       noCommand = noCommand && !general_commands(screen, ch);
     }

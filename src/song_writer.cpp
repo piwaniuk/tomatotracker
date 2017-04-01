@@ -59,7 +59,7 @@ static void saveInstruments(std::ofstream& file, Song* song) {
 
 static void fillPatternStep(uint8_t* buffer, const PatternStep* step, const songMap<Instrument>& instrumentMap) {
   fillBuffer(buffer + PAT_STEP_NOTE_OFF, step->n);
-  fillBuffer(buffer + PAT_STEP_LEN_OFF, uint8_t(1)); //TODO: add read length
+  fillBuffer(buffer + PAT_STEP_LEN_OFF, step->length); //TODO: add read length
   fillBuffer(buffer + PAT_STEP_INS_OFF, instrumentMap.at(step->inst));
   fillBuffer(buffer + PAT_STEP_CMD1_OFF, step->cmd1); //TODO: separate args
   fillBuffer(buffer + PAT_STEP_CMD2_OFF, step->cmd2);

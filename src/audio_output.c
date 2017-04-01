@@ -106,7 +106,7 @@ static void init_audio(AudioOutputContext* context) {
   spec.freq = 48000;
   spec.format = AUDIO_U16;
   spec.channels = 1;
-  spec.samples = 1024;
+  spec.samples = 2048;
   spec.callback = audio_callback;
   spec.userdata = context;
   if ( SDL_OpenAudio(&spec, NULL) < 0 ) {

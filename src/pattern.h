@@ -5,6 +5,7 @@
 
 typedef struct {
   uint8_t n;
+  uint8_t length;
   Instrument* inst;
   uint8_t cmd1;
   uint8_t cmd2;

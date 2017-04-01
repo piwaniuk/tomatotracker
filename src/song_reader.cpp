@@ -73,7 +73,7 @@ static void takePatternStep(
     uint8_t* buffer, PatternStep* step,
     songRevMap<Instrument> instrumentRevMap) {
   step->n = fromBuffer<uint8_t>(buffer + PAT_STEP_NOTE_OFF);
-  // TODO: step->length = fromBuffer<uint8_t>(buffer + PAT_STEP_LENGTH_OFF);
+  step->length = fromBuffer<uint8_t>(buffer + PAT_STEP_LEN_OFF);
   step->inst = instrumentRevMap.at(fromBuffer<uint32_t>(buffer + PAT_STEP_INS_OFF));
   step->cmd1 = fromBuffer<uint32_t>(buffer + PAT_STEP_CMD1_OFF);
   step->cmd2 = fromBuffer<uint32_t>(buffer + PAT_STEP_CMD2_OFF);

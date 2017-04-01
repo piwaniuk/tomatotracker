@@ -24,7 +24,7 @@ typedef struct {
   int sample;
 } Sequencer;
 
-AudioEvent* step_to_event(PatternStep* step);
+AudioEvent* step_to_event(PatternStep* step, uint32_t spt);
 
 /**
  * Move forward the sequencer a number of samples.

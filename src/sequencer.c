@@ -4,11 +4,12 @@
 #include "1osc.h"
 
 // TODO: this function does not seem to belong here after all
-AudioEvent* step_to_event(PatternStep* step) {
+AudioEvent* step_to_event(PatternStep* step, uint32_t spt) {
   Instrument* instr = step->inst;
   int freq = note_to_freq(step->n);
+  uint32_t length = step->length * spt;
   if (instr->type == INSTRUMENT_TYPE_1OSC)
-    return ae_1osc_create(freq, instr->parameters);
+    return ae_1osc_create(freq, length, instr->parameters);
   else
     return ae_freq_create(freq);
 }
@@ -85,7 +86,7 @@ static void seq_trigger_tick(Sequencer* seq, size_t hold, BidirectionalIterator*
   Pattern** patterns = seq_feed_create(seq);
   for(int i = 0; patterns[i] != NULL; ++i) {
     if (patterns[i]->steps[seq->tick].n != 0) {
-      AudioEvent* event = step_to_event(&(patterns[i]->steps[seq->tick]));
+      AudioEvent* event = step_to_event(&(patterns[i]->steps[seq->tick]), seq->spt);
       iter_insert(events, ae_hold_create(hold, event));
     }
   }

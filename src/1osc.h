@@ -12,6 +12,6 @@ typedef struct {
   uint16_t ampRel;
 } Parameters1Osc;
 
-AudioEvent* ae_1osc_create(int freq, void* parameters);
+AudioEvent* ae_1osc_create(int freq, uint32_t length, void* parameters);
 
 #endif
