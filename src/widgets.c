@@ -47,15 +47,19 @@ void move_screen_pos(ScreenPos screenPos) {
   move(screenPos.y, screenPos.x);
 }
 
-void* list_choice_widget(BidirectionalIterator* iter, char* (repr)(void*)) {
+void* list_choice_widget(BidirectionalIterator* iter, size_t width, char* (repr)(void*)) {
   bool finished = false;
   void* ret = NULL;
   int x, y;
   getyx(stdscr, y, x);
   while (!finished) {
     char* itemRepr = repr(iter_get(iter));
+    // clear the field before printing a value
     move(y, x);
-    printw(itemRepr);
+    for(int i = 0; i < width; ++i)
+      addch(' ');
+    move(y, x);
+    addstr(itemRepr);
     int ch = getch();
     switch (ch) {
       case '\n':

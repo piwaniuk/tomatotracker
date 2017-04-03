@@ -6,6 +6,7 @@ extern "C" {
 #include "tracker_field.h"
 #include "tracker_field_interface.h"
 
+static const size_t TRACKER_FIELD_WIDTH = 6;
 
 TrackerField::TrackerField(char* (*repr)(void*)) : repr(repr) {};
 
@@ -20,7 +21,7 @@ static void tracker_field_choose(TrackerField& field) {
   else if (recent != nullptr)
     iter_find_forward(iter, recent);
     
-  choice = list_choice_widget(iter, field.repr);
+  choice = list_choice_widget(iter, TRACKER_FIELD_WIDTH, field.repr);
   iter_destroy(iter);
   
   if (choice != nullptr) {

@@ -16,7 +16,7 @@ static HeaderFields make_header_fields(InstrumentScreen* screen) {
 }
 
 static ScreenPos value_screen_pos(InstrumentScreen* screen) {
-  return (ScreenPos){screen->row + 3, 9};
+  return (ScreenPos){screen->row + 3, 10};
 }
 
 static void render_instrument_screen(InstrumentScreen* screen) {

@@ -23,7 +23,8 @@ void status_message(const char*);
 ScreenPos get_screen_pos();
 void move_screen_pos(ScreenPos screenPos);
 
-void* list_choice_widget(BidirectionalIterator* iter, char* (repr)(void*));
+void* list_choice_widget(
+  BidirectionalIterator* iter, size_t width, char* (repr)(void*));
 
 bool slug_edit_widget(ScreenPos screenPos, char* text, size_t len);
 bool text_edit_widget(ScreenPos screenPos, char* text, size_t len);

@@ -17,7 +17,7 @@ static HeaderFields make_header_fields(SongOptionsScreen* screen) {
 }
 
 static ScreenPos value_screen_pos(SongOptionsScreen* screen) {
-  return (ScreenPos){screen->row + 3, 8};
+  return (ScreenPos){screen->row + 3, 10};
 }
 
 static void render_instrument_screen(SongOptionsScreen* screen) {
