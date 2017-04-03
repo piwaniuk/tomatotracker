@@ -14,9 +14,9 @@ SongHeader::SongHeader(const Song* song) :
  identifier(HEADER_IDENTIFIER),
  version(HEADER_VERSION),
  title(),
- bpm(120), tpb(4),
- patternSize(16),
- trackCount(5),
+ bpm(song->tempo), tpb(song->tpb),
+ patternSize(song->patternLength),
+ trackCount(TRACK_COUNT),
  instrumentCount(song_instrument_count(song)),
  patternCount(song_pattern_count(song)),
  phraseCount(song_phrase_count(song)) {

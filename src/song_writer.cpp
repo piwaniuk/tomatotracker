@@ -60,27 +60,36 @@ static void saveInstruments(std::ofstream& file, Song* song) {
 
 static void fillPatternStep(uint8_t* buffer, const PatternStep* step, const songMap<Instrument>& instrumentMap) {
   fillBuffer(buffer + PAT_STEP_NOTE_OFF, step->n);
-  fillBuffer(buffer + PAT_STEP_LEN_OFF, step->length); //TODO: add read length
+  fillBuffer(buffer + PAT_STEP_LEN_OFF, step->length);
   fillBuffer(buffer + PAT_STEP_INS_OFF, instrumentMap.at(step->inst));
   fillBuffer(buffer + PAT_STEP_CMD1_OFF, step->cmd1); //TODO: separate args
   fillBuffer(buffer + PAT_STEP_CMD2_OFF, step->cmd2);
 }
 
-static void savePattern(std::ofstream& file, const Pattern* pattern, const songMap<Instrument>& instrumentMap) {
-  size_t bufferSize = PAT_HEADER_SIZE + (16 * PAT_STEP_SIZE); //TODO: use pattern length here
+static void savePattern(
+    std::ofstream& file, const Pattern* pattern, uint8_t length,
+    const songMap<Instrument>& instrumentMap) {
+  size_t bufferSize = PAT_HEADER_SIZE + (length * PAT_STEP_SIZE);
   uint8_t buffer[bufferSize];
   fillBuffer<6>(buffer + PAT_NAME_OFF, pattern->identifier);
   fillBuffer<32>(buffer + PAT_DESCR_OFF, pattern->description);
-  for(int i = 0; i < 16; ++i)
-    fillPatternStep(buffer + PAT_STEPS_OFF + i * PAT_STEP_SIZE, &pattern->steps[i], instrumentMap);
+  for(int i = 0; i < length; ++i) {
+    fillPatternStep(
+      buffer + PAT_STEPS_OFF + i * PAT_STEP_SIZE,
+      &pattern->steps[i], instrumentMap);
+  }
 
   file.write(reinterpret_cast<char*>(buffer), bufferSize);
 }
 
-static void savePatterns(std::ofstream& file, Song* song, const songMap<Instrument>& instrumentMap) {
+static void savePatterns(
+    std::ofstream& file, Song* song,
+    const songMap<Instrument>& instrumentMap) {
   BidirectionalIterator* iter = songObjectsIterator<Pattern>(song);
   while (!iter_is_end(iter)) {
-    savePattern(file, reinterpret_cast<Pattern*>(iter_get(iter)), instrumentMap);
+    savePattern(
+      file, reinterpret_cast<Pattern*>(iter_get(iter)),
+      song->patternLength, instrumentMap);
     iter_next(iter);
   }
   iter_destroy(iter);
