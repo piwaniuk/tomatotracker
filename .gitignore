@@ -1,4 +1,4 @@
 *.o
-depend.inc
-tracker
+dep/
+bin/
 
