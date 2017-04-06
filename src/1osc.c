@@ -15,10 +15,16 @@ typedef struct {
 } State1Osc;
 
 uint16_t gen_ads_envelope(Parameters1Osc* params, uint32_t t, uint32_t len) {
-  if (t < params->ampAtt)
-    return 65535 * t / params->ampAtt;
-  else if (t < params->ampAtt + params->ampDec)
-    return 65535 - (65535 - params->ampSus) * (t - params->ampAtt) / params->ampDec;
+  if (t < ms_to_samples(params->ampAtt)) {
+    uint64_t p = t;
+    uint64_t c = ms_to_samples(params->ampAtt);
+    return 65535 * p / c;
+  }
+  else if (t < ms_to_samples(params->ampAtt + params->ampDec)) {
+    uint64_t p = t - ms_to_samples(params->ampAtt);
+    uint64_t c = ms_to_samples(params->ampDec);
+    return 65535 - (65535 - params->ampSus) * p / c;
+  }
   else
     return params->ampSus;
 }
@@ -26,8 +32,11 @@ uint16_t gen_ads_envelope(Parameters1Osc* params, uint32_t t, uint32_t len) {
 uint16_t gen_rel_envelope(Parameters1Osc* params, uint32_t t, uint32_t len) {
   if (t < len)
     return 65535;
-  else if (t < len + params->ampRel)
-    return 65535 - 65535 * (t - len) / params->ampRel;
+  else if (t < len + (uint64_t)ms_to_samples(params->ampRel)) {
+    uint64_t p = t - len;
+    uint64_t c = ms_to_samples(params->ampRel);
+    return 65535 - 65535 * p / c;
+  }
   else
     return 0;
 }
@@ -45,7 +54,7 @@ char ae_1osc_fill(AudioEvent* event, sample_t* buffer, size_t len) {
     state->phase += state->phaseStep;
   }
   state->time += len;
-  return state->time < state->length * 2 + state->params->ampRel;
+  return state->time < state->length + state->params->ampRel * 48;
 } 
 
 AudioEventInterface AE_1OSC_INTERFACE = {

@@ -15,6 +15,10 @@ sample_t gen_triangle(uint16_t phase);
 sample_t gen_saw(uint16_t phase);
 sample_t gen_pulse(uint16_t phase);
 
+inline uint32_t ms_to_samples(uint16_t t) {
+  return t * SAMPLE_RATE / 1000;
+}
+
 
 #endif
 

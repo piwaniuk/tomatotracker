@@ -33,3 +33,6 @@ sample_t gen_saw(uint16_t phase) {
 sample_t gen_pulse(uint16_t phase) {
   return phase < 0x1000 ? 0 : 0xFFFF;
 }
+
+uint32_t ms_to_samples(uint16_t t);
+
