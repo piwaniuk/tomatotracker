@@ -5,7 +5,7 @@
 #include "audio_event.h"
 #include "audio_event_interface.h"
 
-char ae_fill(AudioEvent* event, sample_t* buffer, size_t len) {
+char ae_fill(AudioEvent* event, float* buffer, size_t len) {
   return event->interface->fill(event, buffer, len);
 }
 
@@ -17,21 +17,21 @@ void ae_destroy(AudioEvent* event) {
 typedef struct {
   int ttl;
   int freq;
-  uint16_t phase;
+  float phase;
 } AEFreqState;
 
-char ae_freq_fill(AudioEvent* event, sample_t* buffer, size_t len) {
+char ae_freq_fill(AudioEvent* event, float* buffer, size_t len) {
   AEFreqState* state = (AEFreqState*)event->state;
   char alive = true;
   for(int i = 0; i < len; ++i) {
     if (state->ttl) {
-      state->phase += 65536 * state->freq / 48000;
+      state->phase += state->freq / SAMPLE_RATE;
       buffer[i] = gen_pulse(state->phase);
       --state->ttl;
     }
     else {
       alive = false;
-      buffer[i] = SAMPLE_0;
+      buffer[i] = 0.0;
     }
   }
   return alive;
@@ -60,14 +60,14 @@ typedef struct {
   AudioEvent* event;
 } AEHoldState;
 
-char ae_hold_fill(AudioEvent* event, sample_t* buffer, size_t len) {
+char ae_hold_fill(AudioEvent* event, float* buffer, size_t len) {
   AEHoldState* state = (AEHoldState*)event->state;
   if (state->hold == 0) {
     return ae_fill(state->event, buffer, len);
   }
   else if (state->hold < len) {
     for(int i = 0; i < state->hold; ++i)
-      buffer[i] = SAMPLE_0;
+      buffer[i] = 0.0;
     buffer += state->hold;
     len -= state->hold;
     state->hold = 0;
@@ -76,7 +76,7 @@ char ae_hold_fill(AudioEvent* event, sample_t* buffer, size_t len) {
   else {
     state->hold -= len;
     for(int i = 0; i < len; ++i)
-      buffer[i] = SAMPLE_0;
+      buffer[i] = 0.0;
     return true;
   }
 }

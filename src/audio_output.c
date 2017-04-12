@@ -31,30 +31,29 @@ void aoc_destroy(AudioOutputContext* aoc) {
 
 void mix_buffers(BidirectionalIterator* bi, size_t len, sample_t* out) {
   // zero the output
-  int32_t* mix = malloc(sizeof(int32_t) * len);
+  float* mix = malloc(sizeof(float) * len);
   uint16_t count = 0;
   
   for(int j = 0; j < len; ++j)
-    mix[j] = SAMPLE_0;
+    mix[j] = 0.0;
   
   // sum the inputs
   for(; !iter_is_end(bi); iter_next(bi)) {
-    sample_t* in = (sample_t*)iter_get(bi);
+    float* in = (float*)iter_get(bi);
     for(int j = 0; j < len; ++j)
       mix[j] += in[j];
     ++count;
   }
 
   for(int j = 0; j < len; ++j) {
-    mix[j] -= count * SAMPLE_0;
-    if (mix[j] < 0)
+    mix[j] = mix[j] * 32768 + SAMPLE_0;
+    if (mix[j] <= 0.0)
       out[j] = 0;
-    else if (mix[j] > 65535)
+    else if (mix[j] >= 65535)
       out[j] = 65535;
     else
-      out[j] = (sample_t)mix[j];
+      out[j] = mix[j];
   }
-
   free(mix);
 }
 
@@ -82,8 +81,8 @@ void audio_callback(void* userData, Uint8* s, int len) {
     BidirectionalIterator* bi = list_iterator(bufferList);
     while (!iter_is_end(i)) {
       AudioEvent* event = (AudioEvent*)iter_get(i);
-      sample_t* buffer = malloc(sizeof(sample_t) * sampleLen);
-      if (!ae_fill(event, (sample_t*)buffer, sampleLen)) {
+      float* buffer = malloc(sizeof(float) * sampleLen);
+      if (!ae_fill(event, buffer, sampleLen)) {
         // remove the event
         iter_remove(i);
         ae_destroy(event);

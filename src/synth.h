@@ -12,8 +12,8 @@ typedef uint16_t sample_t;
 int note_to_freq(uint8_t note);
 
 sample_t gen_triangle(uint16_t phase);
-sample_t gen_saw(uint16_t phase);
-sample_t gen_pulse(uint16_t phase);
+float gen_saw(float phase);
+float gen_pulse(float phase);
 
 inline uint32_t ms_to_samples(uint16_t t) {
   return t * SAMPLE_RATE / 1000;

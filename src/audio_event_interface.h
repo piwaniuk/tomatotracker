@@ -4,7 +4,7 @@
 #include "audio_event.h"
 
 typedef struct {
-  char (*fill)(AudioEvent* event, sample_t* buffer, size_t len);
+  char (*fill)(AudioEvent* event, float* buffer, size_t len);
   void (*destroy)(AudioEvent* event);
 } AudioEventInterface;
 

@@ -26,12 +26,12 @@ sample_t gen_triangle(uint16_t phase) {
     return -1 - (phase * 2);
 }
 
-sample_t gen_saw(uint16_t phase) {
-  return phase;
+float gen_saw(float phase) {
+  return phase * 2.0 - 1.0;
 }
 
-sample_t gen_pulse(uint16_t phase) {
-  return phase < 0x1000 ? 0 : 0xFFFF;
+float gen_pulse(float phase) {
+  return phase < 0.25 ? -1.0 : 1.0;
 }
 
 uint32_t ms_to_samples(uint16_t t);
