@@ -24,7 +24,7 @@ static const std::map<uint16_t, uint32_t> INSTR_PARAM_SIZES =
 static const size_t PARAMS_1OSC_SHAPE_OFF = 0;
 static const size_t PARAMS_1OSC_A_OFF = 1;
 static const size_t PARAMS_1OSC_D_OFF = 3;
-static const size_t PARAMS_1OSC_S_OFF = 4;
+static const size_t PARAMS_1OSC_S_OFF = 5;
 static const size_t PARAMS_1OSC_R_OFF = 7;
 
 // instrument field offsets

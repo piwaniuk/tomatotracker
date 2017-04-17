@@ -1,6 +1,12 @@
 Tomato Tracker Changelog
 ========
 
+0.1.2 (2017-04-17)
+--------
+Bugfixes:
+* Decay value now saved correctly in 1osc
+* Fix play marker updates when playing pattern
+
 0.1.1 (2017-04-05)
 --------
 Bugfixes:

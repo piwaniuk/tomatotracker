@@ -189,8 +189,13 @@ void pattern_screen(PatternScreen* screen) {
   int ch;
   while (!screen->finished) {
     char noCommand = true;
-    render_pattern_screen(screen);
+    // render only once per command when not playing
+    if (!seq_is_playing(&screen->tracker->sequencer))
+      render_pattern_screen(screen);
     while (noCommand) {
+      // render continuously when playing
+      if (seq_is_playing(&screen->tracker->sequencer))
+        render_pattern_screen(screen);
       ch = getch();
       if (screen->col == 0) {
         noCommand = !note_column_commands(screen, ch);
