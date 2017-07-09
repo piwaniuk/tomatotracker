@@ -7,6 +7,17 @@
 #define min(a, b) ((a) < (b) ? (a) : (b))
 #define max(a, b) ((a) > (b) ? (a) : (b))
 
+static const char* SHAPE_NAMES[] = {
+  "sine",
+  "triangle",
+  "sawtooth",
+  "square",
+  "pulse",
+  "noise",
+  "carrot", // pow(triangle, 2)
+  "plum", // pow(triangle, 0.5)
+};
+
 static HeaderFields make_header_fields(InstrumentScreen* screen) {
   return (HeaderFields){
     screen->song->title,
@@ -22,11 +33,11 @@ static ScreenPos value_screen_pos(InstrumentScreen* screen) {
 static void render_instrument_screen(InstrumentScreen* screen) {
   move(0, 0);
   print_header(make_header_fields(screen));
-  char* labels[9] = {
+  char* labels[11] = {
     "name", "descr.", "volume", "type", "shape", "amp. A",
-    "amp. D", "amp. S", "amp. R"
+    "amp. D", "amp. S", "amp. R", "cutoff", "reso"
   };
-  char values[9][40];
+  char values[11][40];
   strcpy(values[0], screen->instrument->identifier);
   strcpy(values[1], screen->instrument->description);
   sprintf(values[2], "%d", screen->instrument->volume);
@@ -34,19 +45,29 @@ static void render_instrument_screen(InstrumentScreen* screen) {
 
 
   Parameters1Osc* params = (Parameters1Osc*)screen->instrument->parameters;
-  strcpy(values[4], "saw");
+  sprintf(values[4], "%s", SHAPE_NAMES[params->shape]);
   sprintf(values[5], "%d", params->ampAtt);
   sprintf(values[6], "%d", params->ampDec);
   sprintf(values[7], "%d", params->ampSus);
   sprintf(values[8], "%d", params->ampRel);
+  sprintf(values[9], "%d", params->filter);
+  sprintf(values[10], "%d", params->res);
   
   printw("Instrument:\n");
-  for(int i = 0; i < 9; ++i) {
+  for(int i = 0; i < 11; ++i) {
     printw("%-8s: %s\n", labels[i], values[i]);
   }
   for(int i = 9; i < 20; ++i)
     printw("\n");
   move(screen->row + 3, 0);
+}
+
+static bool shape_row_commands(InstrumentScreen* screen, int ch) {
+  Parameters1Osc* params = (Parameters1Osc*)screen->instrument->parameters;
+  int value = (int)params->shape;
+  bool ret = enum_value_commands(&value, 0, LAST_SHAPE, ch);
+  params->shape = (uint8_t)value;
+  return ret;
 }
 
 static bool attack_row_commands(InstrumentScreen* screen, int ch) {
@@ -81,11 +102,26 @@ static bool release_row_commands(InstrumentScreen* screen, int ch) {
   return ret;
 }
 
+static bool filter_row_commands(InstrumentScreen* screen, int ch) {
+  Parameters1Osc* params = (Parameters1Osc*)screen->instrument->parameters;
+  int value = (int)params->filter;
+  bool ret = numeric_value_commands(&value, 20, 20000, ch);
+  params->filter = (uint16_t)value;
+  return ret;
+}
+
+static bool reso_row_commands(InstrumentScreen* screen, int ch) {
+  Parameters1Osc* params = (Parameters1Osc*)screen->instrument->parameters;
+  int value = (int)params->res;
+  bool ret = numeric_value_commands(&value, 0, 20, ch);
+  params->res = (uint16_t)value;
+  return ret;
+}
+
 static bool type_1osc_row_commands(InstrumentScreen* screen, int ch) {
   switch (screen->row - 4) {
     case 0:
-      //return shape
-      return false;
+      return shape_row_commands(screen, ch);
     case 1:
       return attack_row_commands(screen, ch);
     case 2:
@@ -94,6 +130,10 @@ static bool type_1osc_row_commands(InstrumentScreen* screen, int ch) {
       return sustain_row_commands(screen, ch);
     case 4:
       return release_row_commands(screen, ch);
+    case 5:
+      return filter_row_commands(screen, ch);
+    case 6:
+      return reso_row_commands(screen, ch);
     default:
       return false;
   }
@@ -189,7 +229,7 @@ static bool common_row_commands(InstrumentScreen* screen, int ch) {
 static int instrument_screen_rows(InstrumentScreen* screen) {
   switch( screen->instrument->type) {
     case INSTRUMENT_TYPE_1OSC:
-      return 9;
+      return 11;
     default:
       return 4;
   }

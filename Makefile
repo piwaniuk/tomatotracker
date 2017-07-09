@@ -12,8 +12,8 @@ MODULES=tracker widgets audio_output iterator list pattern_screen \
   song_writer song_reader instrument_screen song_options_screen song_loader \
   song_reader_current song_reader_0_1
 
-CFLAGS=-Wall -Werror -std=c99
-CXXFLAGS=-Wall -Werror -std=c++14
+CFLAGS=-Wall -Werror -std=c11
+CXXFLAGS=-Wall -Werror -std=c++17
 LDFLAGS=-lncurses -lSDL2
 
 # Build logic

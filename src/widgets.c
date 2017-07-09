@@ -166,3 +166,23 @@ bool numeric_value_commands(int* value, int min, int max, int ch) {
   }
   return true;
 }
+
+bool enum_value_commands(int* value, int min, int max, int ch) {
+  switch (ch) {
+    case ',':
+      if (*value > min)
+        --*value;
+      break;
+    case '.':
+      if (*value < max)
+        ++*value;
+      break;
+    case '<':
+      *value = min;
+    case '>':
+      *value = max;
+    default:
+      return false;
+  }
+  return true;
+}

@@ -7,29 +7,34 @@
 
 LinkedList* INSTRUMENTS;
 
-Instrument* instrument_create(const char* name) {
+Instrument* instrument_create(const char* name, uint16_t type) {
   Instrument* ret = malloc(sizeof(Instrument));
-  Parameters1Osc* params = malloc(sizeof(Parameters1Osc));
-  
   snprintf(ret->identifier, 7, "%s", name);
   ret->description[0] = '\0';
   ret->volume = 64;
-  ret->type = INSTRUMENT_TYPE_1OSC;
-  ret->parameters = params;
   
-  *params = (Parameters1Osc){
-    0,
-    65535,
-    240,
-    240,
-    40000,
-    800,
-  };
+  ret->type = type;
+  switch (ret->type) {
+  case INSTRUMENT_TYPE_1OSC:
+    ret->parameters = malloc(sizeof(Parameters1Osc));
+    *((Parameters1Osc*)ret->parameters) = (Parameters1Osc){
+      SHAPE_SAW,
+      240,
+      240,
+      40000,
+      800,
+      20000,
+      0
+    };
+    break;
+  default:
+    ret->parameters = NULL;
+  }
   return ret;
 }
 
 Instrument* instrument_create_default(void) {
-  return instrument_create("deflt");
+  return instrument_create("deflt", INSTRUMENT_TYPE_DEFAULT);
 }
 
 void instrument_destroy(Instrument* instrument) {

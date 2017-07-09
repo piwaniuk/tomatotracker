@@ -26,7 +26,7 @@ char ae_freq_fill(AudioEvent* event, float* buffer, size_t len) {
   for(int i = 0; i < len; ++i) {
     if (state->ttl) {
       state->phase += state->freq / SAMPLE_RATE;
-      buffer[i] = gen_pulse(state->phase);
+      buffer[i] = gen_pul(state->phase);
       --state->ttl;
     }
     else {

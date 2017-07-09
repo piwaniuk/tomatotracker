@@ -57,7 +57,7 @@ struct InstrumentField final : public TrackerField {
   }
 
   virtual void* createNew(const char* name) {
-    Instrument* ret = instrument_create(name);
+    Instrument* ret = instrument_create(name, INSTRUMENT_TYPE_DEFAULT);
     song_add_instrument(screen->song, ret);
     return ret;
   }

@@ -1,4 +1,7 @@
 #include "song_reader_0_1.h"
+#include "song_format_0_1.h"
+
+using Fmt = SongFormat<0x00000001>;
 
 SongReader<0x00000001>::SongReader(std::ifstream&& file, std::unique_ptr<SongHeader> header) :
     SongReaderI(std::move(file), std::move(header)) {
@@ -9,11 +12,13 @@ SongReader<0x00000001>::SongReader(std::ifstream&& file, std::unique_ptr<SongHea
 static Parameters1Osc* take1OscParams(uint8_t* buffer) {
   Parameters1Osc* params =
     reinterpret_cast<Parameters1Osc*>(malloc(sizeof(Parameters1Osc)));
-  params->shape = fromBuffer<uint8_t>(buffer + PARAMS_1OSC_SHAPE_OFF);
-  params->ampAtt = fromBuffer<uint16_t>(buffer + PARAMS_1OSC_A_OFF) / 48;
-  params->ampDec = fromBuffer<uint16_t>(buffer + PARAMS_1OSC_D_OFF) / 48;
-  params->ampSus = fromBuffer<uint16_t>(buffer + PARAMS_1OSC_S_OFF);
-  params->ampRel = fromBuffer<uint16_t>(buffer + PARAMS_1OSC_R_OFF) / 48;
+  params->shape = fromBuffer<uint8_t>(buffer + Fmt::PARAMS_1OSC_SHAPE_OFF);
+  params->ampAtt = fromBuffer<uint16_t>(buffer + Fmt::PARAMS_1OSC_A_OFF) / 48;
+  params->ampDec = fromBuffer<uint16_t>(buffer + Fmt::PARAMS_1OSC_D_OFF) / 48;
+  params->ampSus = fromBuffer<uint16_t>(buffer + Fmt::PARAMS_1OSC_S_OFF);
+  params->ampRel = fromBuffer<uint16_t>(buffer + Fmt::PARAMS_1OSC_R_OFF) / 48;
+  params->filter = 20000;
+  params->res = 0;
   return params;
 }
 
@@ -38,13 +43,13 @@ static Instrument* loadInstrument(std::ifstream& file) {
   uint8_t buffer2[buffer2Size];
   file.read(reinterpret_cast<char*>(buffer2), buffer2Size);
   
-  stringFromBuffer<6>(buffer2 + INS_NAME_OFF, instrument->identifier);
-  stringFromBuffer<32>(buffer2 + INS_DESCR_OFF, instrument->description);
-  instrument->volume = fromBuffer<uint8_t>(buffer2 + INS_VOLUME_OFF);
-  instrument->type = fromBuffer<uint16_t>(buffer2 + INS_TYPE_OFF);
+  stringFromBuffer<6>(buffer2 + Fmt::INS_NAME_OFF, instrument->identifier);
+  stringFromBuffer<32>(buffer2 + Fmt::INS_DESCR_OFF, instrument->description);
+  instrument->volume = fromBuffer<uint8_t>(buffer2 + Fmt::INS_VOLUME_OFF);
+  instrument->type = fromBuffer<uint16_t>(buffer2 + Fmt::INS_TYPE_OFF);
   
   instrument->parameters =
-    takeInstrumentParams(buffer2 + INS_PARAMS_OFF, instrument->type);
+    takeInstrumentParams(buffer2 + Fmt::INS_PARAMS_OFF, instrument->type);
 
   return instrument;
 }
@@ -62,11 +67,11 @@ static void loadInstruments(std::ifstream& file, Song* song, uint32_t count) {
 static void takePatternStep(
     uint8_t* buffer, PatternStep* step,
     songRevMap<Instrument> instrumentRevMap) {
-  step->n = fromBuffer<uint8_t>(buffer + PAT_STEP_NOTE_OFF);
-  step->length = fromBuffer<uint8_t>(buffer + PAT_STEP_LEN_OFF);
-  step->inst = instrumentRevMap.at(fromBuffer<uint32_t>(buffer + PAT_STEP_INS_OFF));
-  step->cmd1 = fromBuffer<uint32_t>(buffer + PAT_STEP_CMD1_OFF);
-  step->cmd2 = fromBuffer<uint32_t>(buffer + PAT_STEP_CMD2_OFF);
+  step->n = fromBuffer<uint8_t>(buffer + Fmt::PAT_STEP_NOTE_OFF);
+  step->length = fromBuffer<uint8_t>(buffer + Fmt::PAT_STEP_LEN_OFF);
+  step->inst = instrumentRevMap.at(fromBuffer<uint32_t>(buffer + Fmt::PAT_STEP_INS_OFF));
+  step->cmd1 = fromBuffer<uint32_t>(buffer + Fmt::PAT_STEP_CMD1_OFF);
+  step->cmd2 = fromBuffer<uint32_t>(buffer + Fmt::PAT_STEP_CMD2_OFF);
 }
 
 static Pattern* loadPattern(
@@ -74,15 +79,15 @@ static Pattern* loadPattern(
     songRevMap<Instrument> instrumentMap) {
   Pattern* pattern =
     reinterpret_cast<Pattern*>(malloc(sizeof(Pattern)));
-  size_t bufferSize = PAT_HEADER_SIZE + (length * PAT_STEP_SIZE);
+  size_t bufferSize = Fmt::PAT_HEADER_SIZE + (length * Fmt::PAT_STEP_SIZE);
   uint8_t buffer[bufferSize];
   file.read(reinterpret_cast<char*>(buffer), bufferSize);
   
-  stringFromBuffer<6>(buffer + PAT_NAME_OFF, pattern->identifier);
-  stringFromBuffer<32>(buffer + PAT_DESCR_OFF, pattern->description);
+  stringFromBuffer<6>(buffer + Fmt::PAT_NAME_OFF, pattern->identifier);
+  stringFromBuffer<32>(buffer + Fmt::PAT_DESCR_OFF, pattern->description);
   
   for(uint8_t i = 0; i < length; ++i)
-    takePatternStep(buffer + PAT_STEPS_OFF + i * PAT_STEP_SIZE, &pattern->steps[i], instrumentMap);
+    takePatternStep(buffer + Fmt::PAT_STEPS_OFF + i * Fmt::PAT_STEP_SIZE, &pattern->steps[i], instrumentMap);
   
   return pattern;
 }
@@ -113,19 +118,19 @@ static Phrase* loadPhrase(
   for(int i = 0; i < TRACK_SIZE; ++i)
     phrase->patterns[i] = nullptr;
 
-  uint8_t buffer1[PHR_LENGTH_SIZE];
-  file.read(reinterpret_cast<char*>(buffer1), PHR_LENGTH_SIZE);
+  uint8_t buffer1[Fmt::PHR_LENGTH_SIZE];
+  file.read(reinterpret_cast<char*>(buffer1), Fmt::PHR_LENGTH_SIZE);
   phrase->length = fromBuffer<uint16_t>(buffer1);
 
-  size_t buffer2Size = PHR_HEADER_SIZE + (phrase->length) * PHR_STEP_SIZE;
+  size_t buffer2Size = Fmt::PHR_HEADER_SIZE + (phrase->length) * Fmt::PHR_STEP_SIZE;
   uint8_t buffer2[buffer2Size];
   file.read(reinterpret_cast<char*>(buffer2), buffer2Size);
-  stringFromBuffer<6>(buffer2 + PHR_NAME_OFF, phrase->name);
-  stringFromBuffer<32>(buffer2 + PHR_DESCR_OFF, phrase->descr);
+  stringFromBuffer<6>(buffer2 + Fmt::PHR_NAME_OFF, phrase->name);
+  stringFromBuffer<32>(buffer2 + Fmt::PHR_DESCR_OFF, phrase->descr);
 
   for(uint16_t i = 0; i < phrase->length; ++i)
     phrase->patterns[i] =
-      takePhraseStep(buffer2 + PHR_STEPS_OFF + i * PHR_STEP_SIZE, patternMap);
+      takePhraseStep(buffer2 + Fmt::PHR_STEPS_OFF + i * Fmt::PHR_STEP_SIZE, patternMap);
 
   return phrase;
 }
@@ -165,16 +170,16 @@ static void rebuildTail(TrackEntry* track, uint16_t lastPos) {;
 static void loadTrack(
     std::ifstream& file, Song* song, uint8_t index,
     songRevMap<Phrase> phraseMap) {
-  uint8_t buffer1[TRK_LAST_POS_SIZE];
-  file.read(reinterpret_cast<char*>(buffer1), TRK_LAST_POS_SIZE);
+  uint8_t buffer1[Fmt::TRK_LAST_POS_SIZE];
+  file.read(reinterpret_cast<char*>(buffer1), Fmt::TRK_LAST_POS_SIZE);
   song->lastPos[index] = fromBuffer<uint16_t>(buffer1);
   
-  size_t buffer2Size = (song->lastPos[index] + 1) * TRK_ENTRY_SIZE;
+  size_t buffer2Size = (song->lastPos[index] + 1) * Fmt::TRK_ENTRY_SIZE;
   uint8_t buffer2[buffer2Size];
   file.read(reinterpret_cast<char*>(buffer2), buffer2Size);
   for(uint16_t i = 0; i <= song->lastPos[index]; ++i)
     song->tracks[index][i].phrase =
-      takeTrackEntry(buffer2 + i * TRK_ENTRY_SIZE, phraseMap);
+      takeTrackEntry(buffer2 + i * Fmt::TRK_ENTRY_SIZE, phraseMap);
   
   rebuildTail(song->tracks[index], song->lastPos[index]);
 }

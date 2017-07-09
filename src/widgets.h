@@ -30,5 +30,6 @@ bool slug_edit_widget(ScreenPos screenPos, char* text, size_t len);
 bool text_edit_widget(ScreenPos screenPos, char* text, size_t len);
 
 bool numeric_value_commands(int* value, int min, int max, int ch);
+bool enum_value_commands(int* value, int min, int max, int ch);
 
 #endif
