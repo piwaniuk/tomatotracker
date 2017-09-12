@@ -12,7 +12,7 @@ extern "C" {
 
 SongHeader::SongHeader(const Song* song) :
  identifier(HEADER_IDENTIFIER),
- version(HEADER_VERSION),
+ version(HEADER_CURRENT_VERSION),
  title(),
  bpm(song->tempo), tpb(song->tpb),
  patternSize(song->patternLength),
@@ -85,6 +85,10 @@ void SongHeader::toSong(Song* song) const {
     for(int j = 0; j < TRACK_SIZE; ++j)
       song->tracks[i][j] = {nullptr, 0};
   }
+}
+
+uint32_t SongHeader::getVersion() const {
+  return version;
 }
 
 uint8_t SongHeader::getPatternLength() const {

@@ -11,20 +11,24 @@ extern "C" {
 #include "song.h"
 }
 
-class SongReader {
+class SongReaderI {
 public:
-  SongReader(const char* filename);
-  SongReader(std::ifstream&& file);
+  SongReaderI(const char* filename);
+  SongReaderI(std::ifstream&& file);
+  SongReaderI(std::ifstream&& file, std::unique_ptr<SongHeader> header);
   const SongHeader* getHeader();
   Song* loadSong();
   void close();
-private:
-  void loadHeader();
+protected:
   std::string filename;
   std::ifstream file;
+private:
+  void loadHeader();
   std::unique_ptr<SongHeader> header;
   bool headerLoaded;
 };
+
+template<int VERSION> class SongReader;
 
 #endif
 

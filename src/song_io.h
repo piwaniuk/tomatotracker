@@ -12,7 +12,7 @@ extern "C" {
 // Format constants
 
 static const uint32_t HEADER_IDENTIFIER = 0x52544d54;
-static const uint32_t HEADER_VERSION = 0x00000001;
+static const uint32_t HEADER_CURRENT_VERSION = 0x00000002;
 
 static const size_t HEADER_SIZE = 64;
 static const size_t INSTRUMENT_BASE_SIZE = 44;
@@ -70,6 +70,7 @@ public:
   void toBuffer(uint8_t* buffer) const ;
   void toSong(Song* song) const;
 
+  uint32_t getVersion() const;
   uint8_t getPatternLength() const;
   uint8_t getTrackCount() const;
   uint32_t getInstrumentCount() const;

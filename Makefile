@@ -9,7 +9,8 @@ MODULES=tracker widgets audio_output iterator list pattern_screen \
   instrument audio_event sequencer synth 1osc song \
   audio_event_interface song_screen phrase_screen pattern \
   tracker_field instrument_field pattern_field phrase_field song_io \
-  song_writer song_reader instrument_screen song_options_screen
+  song_writer song_reader instrument_screen song_options_screen song_loader \
+  song_reader_current song_reader_0_1
 
 CFLAGS=-Wall -Werror -std=c99
 CXXFLAGS=-Wall -Werror -std=c++14
@@ -34,8 +35,8 @@ DEPENDS=$(DEPENDS_REL) $(DEPENDS_DBG)
 
 all: release
 
-release: CFLAGS+= -Os
-release: CXXFLAGS+= -Os
+release: CFLAGS+= -O2
+release: CXXFLAGS+= -O2
 release: LDFLAGS+= -s
 release: $(SUB_DIRS) $(TRACKER_REL)
 

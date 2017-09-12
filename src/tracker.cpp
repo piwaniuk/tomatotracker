@@ -6,7 +6,8 @@
 
 #include "tracker.h"
 #include "song_writer.h"
-#include "song_reader.h"
+#include "song_loader.h"
+#include "song_reader_current.h"
 
 extern "C" {
 #include "instrument.h"
@@ -43,15 +44,9 @@ Song* initialize_song(Tracker* tracker, int argc, char** argv) {
   }
   else {
     // loading existing song
-    SongReader reader(std::move(file));
-    const SongHeader* header = reader.getHeader();
-    if (header == nullptr) {
-      std::cerr << "Failed to load header" << std::endl;
-      exit(3);
-    }
-
-    ret = reader.loadSong();
-    reader.close();
+    SongLoader loader(std::move(file));
+    ret = loader.loadSong();
+    loader.close();
     if (ret == nullptr) {
       std::cerr << "Failed to load song." << std::endl;
       exit(4);
