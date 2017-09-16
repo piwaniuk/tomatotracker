@@ -81,7 +81,18 @@ Song* song_create(void) {
 }
 
 void song_destroy(Song* song) {
-  //TODO: free contents first
+  // destroy contents of lists
+  BidirectionalIterator* iter;
+  for (iter = list_iterator(song->phrases); !iter_is_end(iter); iter_next(iter))
+    phrase_destroy((Phrase*)iter_get(iter));
+  iter_destroy(iter);
+  for (iter = list_iterator(song->patterns); !iter_is_end(iter); iter_next(iter))
+    pattern_destroy((Pattern*)iter_get(iter));
+  iter_destroy(iter);
+  for (iter = list_iterator(song->instruments); !iter_is_end(iter); iter_next(iter))
+    instrument_destroy((Instrument*)iter_get(iter));
+  iter_destroy(iter);
+
   list_destroy(song->instruments);
   list_destroy(song->phrases);
   list_destroy(song->patterns);

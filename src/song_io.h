@@ -132,6 +132,7 @@ template<typename T> songMap<T> makeMap(Song* song) {
     iter_next(iter);
     ++index;
   }
+  iter_destroy(iter);
   return ret;
 }
 
@@ -144,6 +145,7 @@ template<typename T> songRevMap<T> makeRevMap(Song* song) {
     iter_next(iter);
     ++index;
   }
+  iter_destroy(iter);
   return ret;
 }
 

@@ -55,6 +55,7 @@ static void loadInstruments(std::ifstream& file, Song* song, uint32_t count) {
     Instrument* newInstrument = loadInstrument(file);
     iter_insert(iter, newInstrument);
   }
+  iter_destroy(iter);
 }
 
 // Pattern definitions
@@ -95,6 +96,7 @@ static void loadPatterns(
     Pattern* newPattern = loadPattern(file, song, length, instrumentMap);
     iter_insert(iter, newPattern);
   }
+  iter_destroy(iter);
 }
 
 // Phrase definitions
@@ -138,6 +140,7 @@ static void loadPhrases(
     Phrase* newPhrase = loadPhrase(file, song, patternMap);
     iter_insert(iter, newPhrase);
   }
+  iter_destroy(iter);
 }
 
 // Track definitions
